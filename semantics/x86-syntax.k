@@ -540,6 +540,7 @@ module X86-SYNTAX
                   | "divw"
                   | "dppd"
                   | "dpps"
+                  | "endbr64"
                   | "extractps"
                   | "haddpd"
                   | "haddps"
