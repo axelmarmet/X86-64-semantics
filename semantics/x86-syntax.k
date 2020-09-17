@@ -24,6 +24,7 @@ module X86-SORT
   syntax Ymm
   syntax Opcode
   syntax Builtin
+  syntax ImmToFold
 endmodule
 
 module X86-SYNTAX
@@ -106,6 +107,8 @@ module X86-SYNTAX
   syntax Operands ::= List{Operand, ","} [klabel(operandlist)]
 
   syntax Operand ::=    Imm
+                         //add ImmToFold
+                       | ImmToFold
                        | Mem
                        | Register
                        | MemOffset
@@ -149,6 +152,14 @@ module X86-SYNTAX
   syntax Offset ::= Int
   syntax Imm ::= "$" Int
                | HexConstant
+
+  syntax ImmToFold ::= Int
+                     | "(" ImmToFold ")" [bracket]
+                     | "~" ImmToFold [strict]
+                     | ImmToFold ">>" Int [strict]
+                     | ImmToFold "<<" Int [strict]
+                     > ImmToFold "|" ImmToFold [strict]
+                     > ImmToFold "&" ImmToFold [strict]
 
   /*@
    * `Mem` can be evaluated to a KResult `MemOffset`
