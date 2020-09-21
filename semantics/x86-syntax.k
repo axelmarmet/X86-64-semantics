@@ -147,6 +147,7 @@ module X86-SYNTAX
                     | Xmm
                     | Ymm
                     | Mm
+                    | RControl
 //  syntax Memoffs ::= Offset
 //                   | Sreg ":" Offset
   syntax Offset ::= Int
@@ -218,6 +219,13 @@ module X86-SYNTAX
 
   syntax Rip ::= "%rip"
   syntax Scale ::= Int
+
+  syntax RControl ::= "%cr0"
+                    | "%cr1"
+                    | "%cr2"
+                    | "%cr3"
+                    | "%cr4"
+                    | "%cr8"
 
   syntax Rh ::= "%ah"
               | "%bh"

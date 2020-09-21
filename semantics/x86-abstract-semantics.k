@@ -421,10 +421,86 @@ module X86-ABSTRACT-SEMANTICS
   rule getRegisterValue(R:Rh,  RSMap)  =>  extractMask({RSMap[convToRegKeys(R)]}:>MInt, 8, 8)
   rule getRegisterValue(X:Xmm, RSMap)  =>  extractMask({RSMap[convToRegKeys(X)]}:>MInt, 128, 0)
   rule getRegisterValue(Y:Ymm, RSMap)  =>  {RSMap[convToRegKeys(Y)]}:>MInt
+  rule getRegisterValue(%cr0, RSMap) => concatenateMInts(
+    {RSMap["PG"]}:>MInt //bit 31
+    {RSMap["CD"]}:>MInt //bit 30
+    {RSMap["NW"]}:>MInt //bit 29
+    mi(10,0)    //bit 28 to 19
+    {RSMap["AN"]}:>MInt //bit 18
+    mi(1,0)     //bit 17
+    {RSMap["WP"]}:>MInt //bit 16
+    mi(10,0)    //bit 15 to 6
+    {RSMap["NE"]}:>MInt //bit 5
+    {RSMap["ET"]}:>MInt //bit 4
+    {RSMap["TS"]}:>MInt //bit 3
+    {RSMap["EM"]}:>MInt //bit 2
+    {RSMap["MP"]}:>MInt //bit 1
+    {RSMap["PE"]}:>MInt)  //bit 0
+  
+  rule getRegisterValue(%cr2, RSMap) => {RSMap["CR2"]}:>MInt
+  rule getRegisterValue(%cr3, RSMap) => concatenateMInts(
+    {RSMap["PageDirectoryBase"]}:>MInt // Bits 31 to 12
+    mi(7, 0)                           // Bits 11 to 5
+    {RSMap["PCD"]}:>MInt               // Bit 4
+    {RSMap["PWT"]}:>MInt               // Bit 3
+    mi(3, 0))                          // Bits 2 to 0
+  rule getRegisterValue(%cr4, RSMap) => concatenateMInts(
+    mi(9,0) // Bits 31 to 23
+    {RSMap["PKE"]}:>MInt //Bit 22
+    {RSMap["SMAP"]}:>MInt //Bit 21
+    {RSMap["SMEP"]}:>MInt //Bit 20
+    mi(1,0) // Bit 19
+    {RSMap["OXSAVE"]}:>MInt //Bit 18
+    {RSMap["PCIDE"]}:>MInt //Bit 17
+    {RSMap["FSGSBASE"]}:>MInt //Bit 16
+    mi(1,0) //Bit 15
+    {RSMap["SMXE"]}:>MInt //Bit 14
+    {RSMap["VMXE"]}:>MInt //Bit 13
+    mi(1,0) //Bit 12
+    {RSMap["UMIP"]}:>MInt //Bit 11
+    {RSMap["OSXMMEXCPT"]}:>MInt //Bit 10
+    {RSMap["OSFXSR"]}:>MInt //Bit 9
+    {RSMap["PCE"]}:>MInt //Bit 8
+    {RSMap["PGE"]}:>MInt //Bit 7
+    {RSMap["MCE"]}:>MInt //Bit 6
+    {RSMap["PAE"]}:>MInt //Bit 5
+    {RSMap["PSE"]}:>MInt //Bit 4
+    {RSMap["DE"]}:>MInt //Bit 3
+    {RSMap["TSD"]}:>MInt //Bit 2
+    {RSMap["PVI"]}:>MInt //Bit 1
+    {RSMap["VME"]}:>MInt) //Bit 0
+
 /*
   rule getRegisterValue(M:Mm,  RSMap)  =>  {RSMap[convToRegKeys(M)]}:>MInt
 */
   rule getParentValue(R:Register, RSMap) => getRegisterValue(convSubRegsToRegs(R), RSMap)
+/*
+  From page 3-16 of Intel 64 and IA-32 Architectures Software Developper's Manual Volume 1
+*/
+  rule getEFLAGSValue(RSMap) => concatenateMInts(
+    mi(10,0)     //bits 31 to 22 set to 0
+    {RSMap["ID"]}:>MInt  //bit 21
+    {RSMap["VIP"]}:>MInt //bit 20
+    {RSMap["VIF"]}:>MInt //bit 19
+    {RSMap["AC"]}:>MInt  //bit 18
+    {RSMap["VM"]}:>MInt  //bit 17
+    {RSMap["RF"]}:>MInt  //bit 16
+    mi(1,0)      //bit 15 set to 0
+    {RSMap["NT"]}:>MInt  //bit 14
+    {RSMap["IOPL"]}:>MInt//bit 13 to 12
+    {RSMap["OF"]}:>MInt  //bit 11
+    {RSMap["DF"]}:>MInt  //bit 10
+    {RSMap["IF"]}:>MInt  //bit 9
+    {RSMap["TF"]}:>MInt  //bit 8
+    {RSMap["SF"]}:>MInt  //bit 7
+    {RSMap["ZF"]}:>MInt  //bit 6
+    mi(1,0)      //bit 5 set to 0
+    {RSMap["AF"]}:>MInt  //bit 4
+    mi(1,0)      //bit 3 set to 0
+    {RSMap["PF"]}:>MInt  //bit 2
+    mi(1,1)      //bit 1 set to 1
+    {RSMap["CF"]}:>MInt  //bit 0
+  )
 
   /*@
     handleImmediateWithSignExtend(Imm, M, N): Compute a MInt corresponding

@@ -107,6 +107,8 @@ module X86-ABSTRACT-SYNTAX
   */  
   syntax MInt  ::= getRegisterValue(Register, Map) [function]
 
+  syntax MInt  ::= getEFLAGSValue(Map) [function]
+  
   /*@
     Getting the Parent register's values.
       Ex. getParentValue(%al) -> 64 bits of %rax

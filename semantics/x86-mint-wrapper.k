@@ -76,6 +76,10 @@ module MINT-WRAPPER-SYNTAX
     Covert Floats to Ints.
   */
   syntax Ints ::= convertFpsToInts(Floats) [function]
+  /*@
+    Concatenate MInts
+   */
+  syntax MInt  ::= concatenateMInts(MInts) [function]
 
   /*@
     Covert Floats to MInts.
@@ -351,6 +355,12 @@ module MINT-WRAPPER
   rule zeroMIntW256 =>  mi(256,0) [macro]
   rule oneMIntW1    =>  mi(1,  1) [macro]
   rule oneMIntW64   =>  mi(64, 1) [macro]
+
+  /*
+    Concatenation defined recursively
+   */
+  rule concatenateMInts(MI .MInts) => MI
+  rule concatenateMInts(MI1 MI2 Tail) => concatenateMInts(concatenateMInt(MI1, MI2) Tail)
 
 
   /*@
