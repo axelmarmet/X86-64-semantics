@@ -513,10 +513,15 @@ module X86-ABSTRACT-SEMANTICS
   // Or a HexConstant: For hexconstants ike 0x800, we have to provide the substr 800
   // as an argument to  String2Base                                          
   syntax String ::= HexConstant2String ( HexConstant )    [function, hook(STRING.token2string)]
+
+  syntax Int ::= stringToInt ( HexConstant ) [function]
+  rule stringToInt ( H:HexConstant ) => 
+       String2Base(substrString(HexConstant2String(H), 3, lengthString(HexConstant2String(H))), 16)
+
   //rule handleImmediateWithSignExtend($0x H:HexConstant, M:Int, N:Int) =>
   //  signExtend(mi(M, String2Base(HexConstant2String(H), 16)), N)
   rule handleImmediateWithSignExtend((H:HexConstant):Imm, M:Int, N:Int) =>
-    signExtend(mi(M, String2Base(substrString(HexConstant2String(H), 3, lengthString(HexConstant2String(H))), 16)), N)
+    signExtend(mi(M, stringToInt(H)), N)
 
   /*@ 
     Check if two registers are the same
