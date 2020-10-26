@@ -23,17 +23,17 @@ module X86-CONFIGURATION
 	//initRegisters($REGV:RegValPairList) ~> 
 	//initEnvironment($ARGV:List) ~> 
 	initEnvironment(.List) ~> 
-	$PGM:Instructions ~> 
-        loadEntryPoint ~>
+	$PGM:Lines ~> 
+  loadEntryPoint ~>
 	inforegisters ~> 
 	fetch 
     </k>
-
+    <entrypoint> mi(64, 1052672) </entrypoint>
+    <exitpoint> mi(64, 1052677) </exitpoint>
     <functargets> .Map </functargets> 
     <rotargets> .Map </rotargets> 
     <datatargets> .Map </datatargets> 
     <bsstargets> .Map </bsstargets> 
-    <entrypoint> .K </entrypoint>
     <nextLocPc> mi(64, 0) </nextLocPc>
     <lastseenlabel> .K </lastseenlabel>
     <currentsection> "text" </currentsection>

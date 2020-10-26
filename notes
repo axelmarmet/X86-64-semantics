@@ -1,0 +1,3 @@
+problem when we are refering to a label in RO section,
+objdump converts it in someway and we obtain only an immediate,
+add some hardcoded rule to transform it to something that getOpcodeSize understands

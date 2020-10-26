@@ -82,6 +82,13 @@ module X86-MEMORY-SYNTAX
                       /* Load size in bits */ Int)
 
   /*@
+    Load memory at Address represented by MInt for Int bits read bytes accross
+  */
+  syntax KItem ::=  loadFromMemoryAcross(
+                      /* Address */ MInt,
+                      /* Load size in bits */ Int)
+
+  /*@
     Sorts to be stored in memory.
   */  
   syntax StoreVal ::= MInt | MIntMap
@@ -304,6 +311,45 @@ module X86-MEMORY
     loadFromMemory(ptr(L:MemLoc, AddrMI:MInt), Nbits:Int) =>
       fromMemValue(mRead(L, uvalueMInt(AddrMI) *Int 8, Nbits /Int 8, 8), Nbits)
   ... </k>
+    //<stackbase> stackBaseInfo( L:MemLoc, _:K) </stackbase>
+      requires Nbits %Int 8 ==Int 0
+
+  /*@
+    Load memory Nbits:Int bits from Address represented AddrMI:MInt
+  */
+  rule 
+    <k>
+    loadFromMemory(AddrMI:MInt, Nbits:Int) =>
+      fromMemValue(
+        mRead(
+          loc(
+            uvalueMInt(AddrMI),
+            1,
+            8,
+            0
+          )
+          , 0, 1, 8), 
+        Nbits)
+    ... 
+    </k>
+    //<stackbase> stackBaseInfo( L:MemLoc, _:K) </stackbase>
+      requires Nbits %Int 8 ==Int 0
+
+
+  rule 
+    <k>
+    loadFromMemoryAcross(AddrMI:MInt, Nbits:Int) =>
+      fromMemValue(
+        mReadAcross(
+          loc(
+            uvalueMInt(AddrMI),
+            1,
+            8,
+            0
+          ), Nbits /Int 8),
+        Nbits)
+    ... 
+    </k>
     //<stackbase> stackBaseInfo( L:MemLoc, _:K) </stackbase>
       requires Nbits %Int 8 ==Int 0
 

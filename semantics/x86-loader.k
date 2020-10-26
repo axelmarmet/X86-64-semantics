@@ -1,10 +1,14 @@
 requires "x86-configuration.k"
 
 module X86-LOADER-SYNTAX
+  imports MINT
+
   syntax KItem ::= "loadEntryPoint" 
+
 endmodule
 
 module X86-LOADER
+  imports X86-ABSTRACT-SEMANTICS
   imports X86-LOADER-SYNTAX
   imports X86-CONFIGURATION
   imports ID
@@ -13,6 +17,11 @@ module X86-LOADER
     Unroll intructions into KList.
   */
   rule I:Instruction Is:Instructions => I ~> Is
+
+  /*@
+    Unroll lines into KList.
+  */
+  rule L:Line Ls:Lines => L ~> Ls
 
   /*@
     Ignore certain contructs for the time being.
@@ -629,25 +638,52 @@ module X86-LOADER
     The reason for parsing instruction as (OpC OpR) is to 
     avoid on instructions like .section ...
   */
-  rule  <k> OpC:Opcode OpR:Operands => . ...</k>
-        //<text> code(M:Map => M[iloc(L) <- storedInstr(OpC OpR)])</text>
-        <text> code(M:Map => M[ ptr(symloc(-1, 0, 0, 0, 0), L) <- storedInstr(OpC OpR)])</text>
-        <nextLocPc> L:MInt => addMInt(L, mi(64, 1)) </nextLocPc>
+  rule  
+    <k> 
+      (Addr:HexConstant : Size:Int Asm:HexConstant (OpC:Opcode OpR:Operands):Instruction):Line => 
+      writeMachineCodeAux(
+        mi(Size *Int 8, hexToInt(Asm)),
+        hexToInt(Addr),
+        0
+      ) ...
+    </k>
+    <text> code(M:Map => M[ mi(Size *Int 8, hexToInt(Asm)) <- execinstr(OpC OpR)])</text>
+    <nextLocPc> L:MInt => addMInt(L, mi(64, 1)) </nextLocPc>
 
-  rule  <k>.Instructions => .K ...</k>
+  syntax KItem ::= writeMachineCodeAux(/*Val */ MInt, /*Base */ Int, /*Offset */ Int)
+  /* Base case */
+  rule
+    <k> 
+      writeMachineCodeAux(Val:MInt, Base:Int, Offset:Int) => . ...
+    </k>
+    requires Offset ==Int bitwidthMInt(Val)
+  /* Inductive case */
+  rule
+    <k> 
+      writeMachineCodeAux(Val:MInt, Base:Int, Offset:Int) =>
+      storeToMemory(
+        extractMInt(Val, Offset, Offset +Int 8),
+        ptr(
+          loc(
+            Base +Int (Offset /Int 8),
+            1,
+            8,
+            0),
+          mi(64, 0)),
+        8
+      ) ~> writeMachineCodeAux(Val, Base, Offset +Int 8) ...
+    </k>
+    requires notBool (Offset ==Int bitwidthMInt(Val))
+
+
+  rule  <k>.Lines => .K ...</k>
 
   /*@
     RIP is set to the entry point address corresponding to labels
     'main' or '_start' in order to begin execution.
   */
   rule  <k> loadEntryPoint => .K ...</k>
-        <regstate> RSMap => RSMap["RIP" <- LoadAddr] </regstate>
-        <entrypoint> _:K => LoadAddr </entrypoint>
-        <functargets>...  main:X86Id |-> LoadAddr:MInt  ...</functargets>
-
-  rule  <k> loadEntryPoint => .K ...</k>
-        <regstate> RSMap => RSMap["RIP" <- LoadAddr] </regstate>
-        <entrypoint> _:K => LoadAddr </entrypoint>
-        <functargets>...  _start:X86Id |-> LoadAddr:MInt  ...</functargets>
+        <regstate> RSMap => RSMap["RIP" <- EntryPoint] </regstate>
+        <entrypoint> EntryPoint </entrypoint>
 
 endmodule

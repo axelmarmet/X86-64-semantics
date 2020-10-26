@@ -123,6 +123,8 @@ module COMMON-MEMORY-SYNTAX
                          /* offset in bits */ Int,
                          /* size to read in elements */ Int,
                          /* element size in bits */ Int)
+  syntax KItem ::= mReadAcross(MemLoc,
+                         /* number of bytes */ Int)
 
   syntax KItem ::= mWrite(MemLoc, /* offset in bits */ Int, MemValue)
 
@@ -260,8 +262,21 @@ module COMMON-MEMORY
     requires ElemSz ==Int Sz
   // TODO: More cases needed when sizes do not agree
 
+  // Only loc for now
+  syntax MemValue ::=
+    readMemValueAcross(/* pointer in memory location */ MemLoc,
+                       /* number of elements to read */ Int,
+                       /* memory to read from */ Memory)
+    [function]
+
+  rule readMemValueAcross(loc(Addr:Int, N:Int, Sz:Int, I:Int), NumElems:Int, mem(M:MemoryMap))
+     =>
+     mList(NumElems, Sz, readMemValueAcrossAux(loc(Addr, N, Sz, I), NumElems, M, .MemData))
+
   syntax MemData ::= readMemValueAux(MemLoc, Int, Int, MemoryMap, MemData)
     [function]
+    
+  
   rule readMemValueAux(_:MemLoc, OffsI:Int, ElemsToRead:Int, _:MemoryMap,
                        D:MemData)
        =>
@@ -273,12 +288,27 @@ module COMMON-MEMORY
        readMemValueAux(loc(Addr, N, Sz, I), OffsI -Int 1, ElemsToRead -Int 1, M,
                        selectMemoryMap(M, loc(Addr, N, Sz, I +Int OffsI)) D)
        requires ElemsToRead >Int 0
+
   rule readMemValueAux(symloc(LocID:Int, A:Int, N:Int, Sz:Int, I:Int),
                        OffsI:Int, ElemsToRead:Int, M:MemoryMap, D:MemData)
        =>
        readMemValueAux(
          symloc(LocID, A, N, Sz, I), OffsI -Int 1, ElemsToRead -Int 1, M,
          selectMemoryMap(M, symloc(LocID, A, N, Sz, I +Int OffsI)) D)
+       requires ElemsToRead >Int 0
+  
+  syntax MemData ::= readMemValueAcrossAux(MemLoc, /*elems to read */ Int, MemoryMap, MemData) [function]
+  /* Base Case */
+  rule readMemValueAcrossAux(_:MemLoc, ElemsToRead:Int, _:MemoryMap, D:MemData)
+       =>
+       D
+       requires ElemsToRead ==Int 0
+  /* Inductive Case */
+  rule readMemValueAcrossAux(loc(Addr:Int, N:Int, Sz:Int, I:Int),
+                      ElemsToRead:Int, M:MemoryMap, D:MemData)
+       =>
+       readMemValueAcrossAux(loc(Addr +Int 1, N, Sz, I), ElemsToRead -Int 1, M,
+                       selectMemoryMap(M, loc(Addr, N, Sz, I)) D)
        requires ElemsToRead >Int 0
 
   // This function assumes that the memory access is inbounds
@@ -378,6 +408,14 @@ module COMMON-MEMORY
        requires notBool inBoundsAccess(N, Sz, I *Int Sz +Int Offs,
                                        NumElems *Int ElemSz)
                 orBool inMemorySet(symloc(LocID, A, N, Sz, 0), F)
+
+  rule <k>
+         mReadAcross(loc(Addr:Int, N:Int, Sz:Int, I:Int), NumElems:Int)
+         =>
+         readMemValueAcross(loc(Addr, N, Sz, I), NumElems, M)
+       ...</k>
+       <objects> M:Memory </objects>
+       //No require for now, probably stupid
 
   rule <k>
          mWrite(loc(Addr:Int, N:Int, Sz:Int, I:Int), Offs:Int, MV:MemValue)

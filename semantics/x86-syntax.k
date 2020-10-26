@@ -1,4 +1,6 @@
 module X86-SORT
+  syntax Lines
+  syntax Line
   syntax Instructions
   syntax Instruction
   syntax Label
@@ -39,6 +41,12 @@ module X86-SYNTAX
   /*@ 
     The following captures  the At&t syntax of x86 assembly.
   */
+
+  syntax Lines ::=  List{Line, ""} [klabel(lineslist)]
+  syntax Line ::= HexConstant ":" Int MachineCode Instruction
+
+  syntax MachineCode ::= HexConstant
+
   syntax Instructions ::= List{Instruction, ""} [klabel(instructionlist)]
   syntax Instruction ::=  Opcode Operands
                        | AssemblerDirective
@@ -102,7 +110,7 @@ module X86-SYNTAX
 
   syntax Label ::= X86Id ":"
         
-  syntax HexConstant ::=  r"$0x[0-9a-fA-F]+" [token]
+  syntax HexConstant ::=  r"0x[0-9a-fA-F]+" [token]
 
   syntax Operands ::= List{Operand, ","} [klabel(operandlist)]
 
@@ -113,6 +121,7 @@ module X86-SYNTAX
                        | Register
                        | MemOffset
                        | X86Id
+                       | DisLabel
                        | Builtin
                        | "$" X86Id
                        | "$" X86Id "+" Int
@@ -152,7 +161,7 @@ module X86-SYNTAX
 //                   | Sreg ":" Offset
   syntax Offset ::= Int
   syntax Imm ::= "$" Int
-               | HexConstant
+               | "$" HexConstant
 
   syntax ImmToFold ::= Int
                      | "(" ImmToFold ")" [bracket]
@@ -161,6 +170,8 @@ module X86-SYNTAX
                      | ImmToFold "<<" Int [strict]
                      > ImmToFold "|" ImmToFold [strict]
                      > ImmToFold "&" ImmToFold [strict]
+
+  syntax DisLabel ::= HexConstant "<" X86Id ">"
 
   /*@
    * `Mem` can be evaluated to a KResult `MemOffset`
