@@ -13,6 +13,12 @@ module X86-ABSTRACT-SYNTAX
   imports COMMON-MEMORY-SORTS
   imports X86-ABSTRACT-SORTS
 
+  syntax ProcessorMode ::= "b32" | "b64" 
+  /* Processor modes */
+  syntax Bool ::= isRealAddressMode(Map) [function]
+  syntax Bool ::= isProtectedMode(Map) [function]
+  syntax Bool ::= isVirtual8086Mode(Map) [function]
+  syntax Int ::= getCPL(Map) [function]
 
   syntax PointerVal ::= ptr(MemLoc, /* offset in bits */ MInt)
   syntax MInt ::= PointerVal

@@ -127,6 +127,8 @@ module COMMON-MEMORY-SYNTAX
                          /* number of bytes */ Int)
 
   syntax KItem ::= mWrite(MemLoc, /* offset in bits */ Int, MemValue)
+  syntax KItem ::= mWriteAcross(MemLoc, MemValue)
+
 
   syntax KItem ::= mClear(MemLoc)
 
@@ -337,6 +339,18 @@ module COMMON-MEMORY
     requires ElemSz ==Int Sz
   // TODO: More cases needed when sizes do not agree
 
+  // This function assumes that the memory access is inbounds
+  syntax Memory ::= writeMemValueAcross(/* memory to write into */ Memory,
+                                        /* pointer in memory location */ MemLoc,
+                                        /* value to write */ MemValue)
+    [function]
+  rule writeMemValueAcross(mem(M:MemoryMap), loc(Addr:Int, N:Int, Sz:Int, I:Int),
+                           mList(NumElems:Int, ElemSz:Int, D:MemData))
+   =>
+   mem(writeMemValueAcrossAux(loc(Addr, N, Sz, I),
+                        NumElems,
+                        D, M))
+
   syntax MemoryMap ::= writeMemValueAux(MemLoc, Int, Int, MemData, MemoryMap)
     [function]
   rule writeMemValueAux(_:MemLoc, OffsI:Int, ElemsToWrite:Int, .MemData,
@@ -359,6 +373,20 @@ module COMMON-MEMORY
          symloc(LocID, A, N, Sz, I), OffsI +Int 1, ElemsToWrite -Int 1, D,
          storeMemoryMap(M, symloc(LocID, A, N, Sz, I +Int OffsI), V))
        requires ElemsToWrite >Int 0
+
+  syntax MemoryMap ::= writeMemValueAcrossAux(MemLoc, /* elems to write */ Int, MemData, MemoryMap)
+    [function]
+  /* Base Case */
+  rule writeMemValueAcrossAux(_:MemLoc, ElemsToWrite:Int, .MemData, M:MemoryMap) => M
+   requires ElemsToWrite ==Int 0
+  /* Inductive Case */
+  rule writeMemValueAcrossAux(loc(Addr:Int, N:Int, Sz:Int, I:Int),
+                              ElemsToWrite:Int, V:AbstractValue D:MemData,
+                              M:MemoryMap)
+    =>
+    writeMemValueAcrossAux(loc(Addr +Int 1, N, Sz, I), ElemsToWrite -Int 1,
+                     D, storeMemoryMap(M, loc(Addr, N, Sz, I), V))
+    requires ElemsToWrite >Int 0
 
   rule mSize(loc(_:Int, N:Int, Sz:Int, _:Int)) => N *Int Sz
   rule mSize(symloc(_:Int, _:Int, N:Int, Sz:Int, _:Int)) => N *Int Sz
@@ -461,6 +489,15 @@ module COMMON-MEMORY
        requires notBool inBoundsAccess(N, Sz, I *Int Sz +Int Offs,
                                        bitSizeOfMemValue(MV))
                 orBool inMemorySet(symloc(LocID, A, N, Sz, 0), F)
+
+  rule <k>
+         mWriteAcross(loc(Addr:Int, N:Int, Sz:Int, I:Int), MV:MemValue)
+         =>
+         .
+       ...</k>
+       <objects>
+         M:Memory => writeMemValueAcross(M, loc(Addr, N, Sz, I), MV)
+       </objects>
 
   rule <k> mClear(loc(Addr:Int, N:Int, Sz:Int, I:Int)) => . ...</k>
        <freed> F:MemorySet => addMemorySet(F, loc(Addr, N, Sz, 0)) </freed>

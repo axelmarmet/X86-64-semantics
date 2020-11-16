@@ -11,6 +11,8 @@ require "common/common.k"
 require "x86-builtin.k"
 require "x86-c-library.k"
 require "x86-imm-folding.k"
+require "x86-msr.k"
+require "x86-eflags.k"
 
 module X86-SEMANTICS
   imports X86-LOADER
@@ -26,4 +28,6 @@ module X86-SEMANTICS
   imports X86-BUILTIN
   imports X86-C-LIBRARY
   imports X86-IMM-FOLDING
+  imports X86-MSR
+  imports X86-EFLAGS
 endmodule

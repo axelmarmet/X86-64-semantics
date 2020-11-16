@@ -641,39 +641,35 @@ module X86-LOADER
   rule  
     <k> 
       (Addr:HexConstant : Size:Int Asm:HexConstant (OpC:Opcode OpR:Operands):Instruction):Line => 
-      writeMachineCodeAux(
-        mi(Size *Int 8, hexToInt(Asm)),
-        hexToInt(Addr),
-        0
-      ) ...
+      storeToMemoryAcross(mi(Size *Int 8, hexToInt(Asm)), mi(Size *Int 8, hexToInt(Addr))) ...
     </k>
     <text> code(M:Map => M[ mi(Size *Int 8, hexToInt(Asm)) <- execinstr(OpC OpR)])</text>
     <nextLocPc> L:MInt => addMInt(L, mi(64, 1)) </nextLocPc>
 
-  syntax KItem ::= writeMachineCodeAux(/*Val */ MInt, /*Base */ Int, /*Offset */ Int)
-  /* Base case */
-  rule
-    <k> 
-      writeMachineCodeAux(Val:MInt, Base:Int, Offset:Int) => . ...
-    </k>
-    requires Offset ==Int bitwidthMInt(Val)
-  /* Inductive case */
-  rule
-    <k> 
-      writeMachineCodeAux(Val:MInt, Base:Int, Offset:Int) =>
-      storeToMemory(
-        extractMInt(Val, Offset, Offset +Int 8),
-        ptr(
-          loc(
-            Base +Int (Offset /Int 8),
-            1,
-            8,
-            0),
-          mi(64, 0)),
-        8
-      ) ~> writeMachineCodeAux(Val, Base, Offset +Int 8) ...
-    </k>
-    requires notBool (Offset ==Int bitwidthMInt(Val))
+  // syntax KItem ::= writeMachineCodeAux(/*Val */ MInt, /*Base */ Int, /*Offset */ Int)
+  // /* Base case */
+  // rule
+  //   <k> 
+  //     writeMachineCodeAux(Val:MInt, Base:Int, Offset:Int) => . ...
+  //   </k>
+  //   requires Offset ==Int bitwidthMInt(Val)
+  // /* Inductive case */
+  // rule
+  //   <k> 
+  //     writeMachineCodeAux(Val:MInt, Base:Int, Offset:Int) =>
+  //     storeToMemory(
+  //       extractMInt(Val, Offset, Offset +Int 8),
+  //       ptr(
+  //         loc(
+  //           Base +Int (Offset /Int 8),
+  //           1,
+  //           8,
+  //           0),
+  //         mi(64, 0)),
+  //       8
+  //     ) ~> writeMachineCodeAux(Val, Base, Offset +Int 8) ...
+  //   </k>
+  //   requires notBool (Offset ==Int bitwidthMInt(Val))
 
 
   rule  <k>.Lines => .K ...</k>

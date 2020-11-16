@@ -101,6 +101,10 @@ module X86-MEMORY-SYNTAX
                       /* Address */ MInt,
                       /* Store size in bits*/ Int)
 
+  syntax KItem ::=  storeToMemoryAcross(
+                      /* Data */ StoreVal,
+                      /* Address */ MInt)
+
 endmodule
 
 
@@ -176,6 +180,10 @@ module X86-MEMORY
   rule fromMemValue(mList(_:Int, 8, Bytes:MemData), N:Int) => 
    memLoadValue ( fromBytes(takeMemData(N /Int 8, Bytes)) )
 
+  syntax KItem ::= fromMemValueBigEndian(KItem, Int) [strict(1)]
+  rule fromMemValueBigEndian(mList(_:Int, 8, Bytes:MemData), N:Int) => 
+   memLoadValue ( fromBytesBigEndian(takeMemData(N /Int 8, Bytes)) )
+
 
   syntax MInt ::= fromBytes(MemData) [function]
   rule fromBytes(byte(I:Int, MI:MInt) Rest) =>  extractMask(MI, 8, I *Int 8)
@@ -183,6 +191,11 @@ module X86-MEMORY
   rule fromBytes(byte(I:Int, MI:MInt) Rest:MemData) =>  concatenateMInt(fromBytes(Rest), extractMask(MI, 8, I *Int 8))
     requires Rest =/=K .MemData
 
+  syntax MInt ::= fromBytesBigEndian(MemData) [function]
+  rule fromBytesBigEndian(byte(I:Int, MI:MInt) Rest) =>  extractMask(MI, 8, I *Int 8)
+    requires Rest ==K .MemData
+  rule fromBytesBigEndian(byte(I:Int, MI:MInt) Rest:MemData) =>  concatenateMInt(extractMask(MI, 8, I *Int 8), fromBytesBigEndian(Rest))
+    requires Rest =/=K .MemData
   // x86 memory API implementation
 
   /*@
@@ -339,7 +352,7 @@ module X86-MEMORY
   rule 
     <k>
     loadFromMemoryAcross(AddrMI:MInt, Nbits:Int) =>
-      fromMemValue(
+      fromMemValueBigEndian(
         mReadAcross(
           loc(
             uvalueMInt(AddrMI),
@@ -363,4 +376,19 @@ module X86-MEMORY
     //<stackbase> stackBaseInfo( L:MemLoc, _:K) </stackbase>
       requires Nbits %Int 8 ==Int 0
 
+
+  rule <k>
+    storeToMemoryAcross(Val:MInt, Addr:MInt) => 
+    mWriteAcross(
+      loc(
+        uvalueMInt(Addr),
+        1,
+        8,
+        0
+      ),
+      toMemValue(Val, bitwidthMInt(Val))
+    )
+  ... </k>
+    //<stackbase> stackBaseInfo( L:MemLoc, _:K) </stackbase>
+      requires bitwidthMInt(Val) %Int 8 ==Int 0
 endmodule

@@ -43,8 +43,10 @@ module X86-SYNTAX
   */
 
   syntax Lines ::=  List{Line, ""} [klabel(lineslist)]
-  syntax Line ::= HexConstant ":" Int MachineCode Instruction
+  syntax Line ::= Address ":" Int MachineCode Instruction
+  syntax Line ::= Address ":" HexConstant HexConstant
 
+  syntax Address ::= HexConstant
   syntax MachineCode ::= HexConstant
 
   syntax Instructions ::= List{Instruction, ""} [klabel(instructionlist)]
@@ -237,6 +239,7 @@ module X86-SYNTAX
                     | "%cr3"
                     | "%cr4"
                     | "%cr8"
+                    | "%eflags"
 
   syntax Rh ::= "%ah"
               | "%bh"
@@ -1423,4 +1426,8 @@ module X86-SYNTAX
                   | "jmpq"
                   | "leaveq"
                   | "pseudofloattestopcode1"
+                  | "wrmsr"
+                  | "rdmsr"
+                  | "pushfd"
+                  | "popfd"
 endmodule
