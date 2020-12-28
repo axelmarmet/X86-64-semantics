@@ -11,6 +11,7 @@ module X86-LOADER
   imports X86-ABSTRACT-SEMANTICS
   imports X86-LOADER-SYNTAX
   imports X86-CONFIGURATION
+  imports MINT-WRAPPER-SYNTAX
   imports ID
 
   /*@
@@ -633,6 +634,10 @@ module X86-LOADER
         <nextLocPc> L </nextLocPc>
         <lastseenlabel> _:K => LabelId </lastseenlabel>
 
+  syntax String ::= Hex2String ( HexConstant )    [function, hook(STRING.token2string)]
+  syntax Int ::= getAsmSize(HexConstant) [function]
+  rule getAsmSize(H:HexConstant) => (lengthString(HexConstant2String(H)) -Int 2) /Int 2
+
   /*@
     Load the instructions into Code memory.
     The reason for parsing instruction as (OpC OpR) is to 
@@ -640,37 +645,30 @@ module X86-LOADER
   */
   rule  
     <k> 
-      (Addr:HexConstant : Size:Int Asm:HexConstant (OpC:Opcode OpR:Operands):Instruction):Line => 
-      storeToMemoryAcross(mi(Size *Int 8, hexToInt(Asm)), mi(Size *Int 8, hexToInt(Addr))) ...
+      (Addr:HexConstant : Asm:HexConstant (OpC:Opcode OpR:Operands):Instruction):Line => 
+      storeToMemoryAcross(
+        mi(getAsmSize(Asm) *Int 8, hexToInt(Asm)),
+        mi(64, hexToInt(Addr))) 
+      ...
     </k>
-    <text> code(M:Map => M[ mi(Size *Int 8, hexToInt(Asm)) <- execinstr(OpC OpR)])</text>
+    <text> code(M:Map => M[ mi(getAsmSize(Asm) *Int 8, hexToInt(Asm)) <- execinstr(OpC OpR)])</text>
     <nextLocPc> L:MInt => addMInt(L, mi(64, 1)) </nextLocPc>
 
-  // syntax KItem ::= writeMachineCodeAux(/*Val */ MInt, /*Base */ Int, /*Offset */ Int)
-  // /* Base case */
-  // rule
-  //   <k> 
-  //     writeMachineCodeAux(Val:MInt, Base:Int, Offset:Int) => . ...
-  //   </k>
-  //   requires Offset ==Int bitwidthMInt(Val)
-  // /* Inductive case */
-  // rule
-  //   <k> 
-  //     writeMachineCodeAux(Val:MInt, Base:Int, Offset:Int) =>
-  //     storeToMemory(
-  //       extractMInt(Val, Offset, Offset +Int 8),
-  //       ptr(
-  //         loc(
-  //           Base +Int (Offset /Int 8),
-  //           1,
-  //           8,
-  //           0),
-  //         mi(64, 0)),
-  //       8
-  //     ) ~> writeMachineCodeAux(Val, Base, Offset +Int 8) ...
-  //   </k>
-  //   requires notBool (Offset ==Int bitwidthMInt(Val))
-
+  /*@
+    Load data in memory
+  */
+  rule  
+    <k> 
+      (Addr:HexConstant : Data:DataBytes ):Line => 
+      storeToMemoryAcross(
+        concatenateMInts(convertDataBytesToMInts(Data)),
+        mi(64, hexToInt(Addr))) 
+      ...
+    </k>
+  
+  syntax MInts ::= convertDataBytesToMInts(D:DataBytes) [function]
+  rule convertDataBytesToMInts(.DataBytes) => .MInts
+  rule convertDataBytesToMInts(D1 Tail) => mi(8, hexToInt(D1)) convertDataBytesToMInts(Tail)
 
   rule  <k>.Lines => .K ...</k>
 

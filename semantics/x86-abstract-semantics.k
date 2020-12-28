@@ -18,6 +18,12 @@ module X86-ABSTRACT-SEMANTICS
        =>
        isMemLocNull(Loc) andBool eqMInt(Offs, mi(bitwidthMInt(Offs), 0))
 
+  /*
+    extract the address from a disassembled label 
+  */
+  rule getAddress((Addr:HexConstant <_:DisLabel>):DisAddress) 
+    => zeroExtend(mi(32, hexToInt(Addr)), 64)
+
   /*@
     Redefining functions over PointerVal
   */
@@ -403,6 +409,15 @@ module X86-ABSTRACT-SEMANTICS
 
   rule <k> setRegisterValue(MI256:MInt, Y:Ymm) => .  ...</k>
     <regstate>... convToRegKeys(Y) |-> (_ => MI256) ...</regstate>
+  
+  rule <k> setRegisterValue(MI16:MInt, GDTR_LIMIT) => . ...</k>
+    <regstate>... GDTR_LIMIT |-> (_ => MI16) ...</regstate>
+    requires bitwidthMInt(MI16) ==Int 16
+
+  rule <k> setRegisterValue(MI64:MInt, GDTR_BASE) => . ...</k>
+    <regstate>... GDTR_BASE |-> (_ => MI64) ...</regstate>
+    requires bitwidthMInt(MI64) ==Int 64
+
 /*
   rule <k> setRegisterValue(MI64:MInt, M:Mm) => .  ...</k>
     <regstate>... convToRegKeys(M) |-> ( _ => MI64) ...</regstate>
@@ -477,6 +492,8 @@ module X86-ABSTRACT-SEMANTICS
     {RSMap["TSD"]}:>MInt //Bit 2
     {RSMap["PVI"]}:>MInt //Bit 1
     {RSMap["VME"]}:>MInt) //Bit 0
+  
+  rule getRegisterValue(R:GDTReg, RSMap) => {RSMap[R]}:>MInt
 
 /*
   rule getRegisterValue(M:Mm,  RSMap)  =>  {RSMap[convToRegKeys(M)]}:>MInt

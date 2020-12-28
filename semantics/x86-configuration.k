@@ -22,14 +22,14 @@ module X86-CONFIGURATION
     <k> 
 	//initRegisters($REGV:RegValPairList) ~> 
 	//initEnvironment($ARGV:List) ~> 
-	initEnvironment(.List) ~> 
+	//initEnvironment(.List) ~> 
 	$PGM:Lines ~> 
   loadEntryPoint ~>
 	inforegisters ~> 
 	fetch 
     </k>
-    <entrypoint> mi(64, 0) </entrypoint>
-    <exitpoint> mi(64, 35) </exitpoint>
+    <entrypoint> mi(64, 134516736) </entrypoint>
+    <exitpoint> mi(64, 134516752) </exitpoint>
     <functargets> .Map </functargets> 
     <rotargets> .Map </rotargets> 
     <datatargets> .Map </datatargets> 
@@ -55,6 +55,30 @@ module X86-CONFIGURATION
     </environment>
 
     <processormode> b32 </processormode>
+
+    //obtained by running cpuid on lenovo t480
+    <cpuidinfo>
+      <processorsignature> 
+        ("family" |-> mi(4, 6)) 
+        ("model" |-> mi(4, 14)) 
+        ("stepping" |-> mi(4, 10)) 
+        ("processortype" |-> mi(2, 0)) 
+        ("extendedmodel" |-> mi(4, 8)) 
+        ("extendedfamily" |-> mi(8, 0)) 
+      </processorsignature>
+      <extendedfunctioninfo>
+        ("LAHF64" |-> mi(1,1))
+        ("LZCNT" |-> mi(1,1))
+        ("PREFETCHW" |-> mi(1,1))
+        ("SYSCALL" |-> mi(1,1))
+        ("EDB" |-> mi(1,1))
+        ("1GBAv" |-> mi(1,1))
+        ("RDTSCP" |-> mi(1,1))
+        ("64MODEAv" |-> mi(1,1))
+      </extendedfunctioninfo>
+    </cpuidinfo>
+    
+
     <cpuidavailable> true </cpuidavailable>
 
     <regstate>
@@ -137,7 +161,8 @@ module X86-CONFIGURATION
       ("ES" |-> mi(16,0))
       ("FS" |-> mi(16,0))
       ("GS" |-> mi(16,0))
-
+      ("GDTR_BASE" |-> mi(64,0))
+      ("GDTR_LIMIT" |-> mi(16,0))
       //AVX regs
       ("YMM0"   |->  mi(256, 0)) 
       ("YMM1"   |->  mi(256, 0)) 
@@ -160,6 +185,7 @@ module X86-CONFIGURATION
     <msrmapping>
       (mi(32, 3221225600) |-> "IA32_EFER")
     </msrmapping>
+
     /*@
       The following configuration is used to store the intermediate
       regstate at instruction boundary. Used in debug/testing purposes.

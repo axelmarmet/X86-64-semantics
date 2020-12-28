@@ -26,6 +26,7 @@ module X86-ABSTRACT-SYNTAX
   syntax PointerVal ::= NullVal
   syntax Bool ::= isPointerValNull(PointerVal) [function]
   syntax MemLoc ::= getMemLoc(PointerVal) [function]
+  syntax MInt ::= getAddress(DisAddress) [function]
   syntax MInt ::= getMIntVal(PointerVal) [function]
 
   /*@

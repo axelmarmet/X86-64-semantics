@@ -91,8 +91,16 @@ module X86-EFLAGS
   rule getVIP(RSMap) => extractMInt(getRegisterValue(%eflags, RSMap), 21, 20)  // Virtual interrupt pending flag
   rule getID(RSMap) => extractMInt(getRegisterValue(%eflags, RSMap), 22, 21)   // Identification flag
 
+  rule execinstr ((pushfd:Opcode => pushf) .Operands)
+  rule execinstr ((pushfq:Opcode => pushf) .Operands)
+  rule execinstr ((pushfl:Opcode => pushf) .Operands)
+
+  rule execinstr ((popfd:Opcode => popf) .Operands)
+  rule execinstr ((popfq:Opcode => popf) .Operands)
+  rule execinstr ((popfl:Opcode => popf) .Operands)
+
   rule <k> 
-    execinstr (pushfd:Opcode .Operands) =>
+    execinstr (pushf:Opcode .Operands) =>
       storeToMemory(
           andMInt(
               getEFLAGSValue(RSMap),
@@ -106,7 +114,7 @@ module X86-EFLAGS
   requires isProtectedMode(RSMap) andBool (notBool(isVirtual8086Mode(RSMap)))
 
   rule <k>
-    execinstr (popfd:Opcode .Operands) => 
+    execinstr (popf:Opcode .Operands) => 
       incRSPInBytes(4) ~>
       updateEFLAGS(
           {RSMap["EFLAGS"]}:>MInt,

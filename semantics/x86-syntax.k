@@ -20,12 +20,15 @@ module X86-SORT
   syntax R16
   syntax R32
   syntax R64
-  //syntax Sreg
+  syntax Sreg
   syntax Xmm
   syntax Mm
   syntax Ymm
   syntax Opcode
   syntax Builtin
+  syntax DisAddress
+  syntax DisLabel
+  syntax DataBytes
   syntax ImmToFold
 endmodule
 
@@ -36,18 +39,18 @@ module X86-SYNTAX
   imports STRING
   imports MINT
   imports ID
-  imports MINT
 
   /*@ 
     The following captures  the At&t syntax of x86 assembly.
   */
 
   syntax Lines ::=  List{Line, ""} [klabel(lineslist)]
-  syntax Line ::= Address ":" Int MachineCode Instruction
-  syntax Line ::= Address ":" HexConstant HexConstant
+  syntax Line ::= Address ":" MachineCode Instruction
+  syntax Line ::= Address ":" DataBytes
 
   syntax Address ::= HexConstant
   syntax MachineCode ::= HexConstant
+  syntax DataBytes ::= List{HexConstant, ""} [klabel(byteslist)]
 
   syntax Instructions ::= List{Instruction, ""} [klabel(instructionlist)]
   syntax Instruction ::=  Opcode Operands
@@ -123,8 +126,9 @@ module X86-SYNTAX
                        | Register
                        | MemOffset
                        | X86Id
-                       | DisLabel
+                       | DisAddress
                        | Builtin
+                       | FarJumpTarget
                        | "$" X86Id
                        | "$" X86Id "+" Int
                        /*@
@@ -145,6 +149,8 @@ module X86-SYNTAX
 //                     | Memoffs
 //                     | Sreg
 
+  syntax FarJumpTarget ::= Imm ":" Imm
+
   syntax MemOffset ::= memOffset ( MInt )
 
 //syntax Simpleoperand ::= Register | Imm | MemOffset
@@ -160,7 +166,9 @@ module X86-SYNTAX
                     | Mm
                     | RControl
 //  syntax Memoffs ::= Offset
-//                   | Sreg ":" Offset
+                    | Sreg
+                    | GDTReg
+
   syntax Offset ::= Int
   syntax Imm ::= "$" Int
                | "$" HexConstant
@@ -173,7 +181,8 @@ module X86-SYNTAX
                      > ImmToFold "|" ImmToFold [strict]
                      > ImmToFold "&" ImmToFold [strict]
 
-  syntax DisLabel ::= HexConstant "<" X86Id ">"
+  syntax DisLabel ::= List{X86Id, "."} [klabel(labellist)]
+  syntax DisAddress ::= HexConstant "<" DisLabel ">"
 
   /*@
    * `Mem` can be evaluated to a KResult `MemOffset`
@@ -206,6 +215,8 @@ module X86-SYNTAX
                | X86Id "(" R64 "," R64 ")"
                | X86Id "+" Int "(" R64 "," R64 "," Scale ")"
                | X86Id "+" Int "(" R64 "," R64 ")"
+               //------------------
+               | HexConstant
 
 //              | Sreg ":" "(" R32 ")"
 //              | Sreg ":" "(" R64 ")"
@@ -369,7 +380,10 @@ module X86-SYNTAX
                | "%ymm13"
                | "%ymm14"
                | "%ymm15"
-    
+
+  syntax GDTReg ::=  "GDTR_BASE"
+                  |  "GDTR_LIMIT" 
+  
   syntax Opcode ::=  "adcb"
                   | "adcl"
                   | "adcq"
@@ -770,6 +784,7 @@ module X86-SYNTAX
                   | "popcntl"
                   | "popcntq"
                   | "popcntw"
+                  | "popl"
                   | "popq"
                   | "popw"
                   | "por"
@@ -808,6 +823,7 @@ module X86-SYNTAX
                   | "punpckldq"
                   | "punpcklqdq"
                   | "punpcklwd"
+                  | "pushl"
                   | "pushq"
                   | "pushw"
                   | "pxor"
@@ -1428,6 +1444,19 @@ module X86-SYNTAX
                   | "pseudofloattestopcode1"
                   | "wrmsr"
                   | "rdmsr"
+                  | "pushf"
+                  | "pushfl"
                   | "pushfd"
+                  | "pushfq"
+                  | "popf"
+                  | "popfl"
                   | "popfd"
+                  | "popfq"
+                  | "cpuid"
+                  | "xgetbv"
+                  | "xsetbv"
+                  | "lgdtl"
+                  | "ljmpl"
+                  | "hlt"
+                  
 endmodule
