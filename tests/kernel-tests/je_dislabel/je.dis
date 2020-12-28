@@ -1,0 +1,4 @@
+0x8049000:	0x39c3                                      	cmpl   %eax,%ebx
+0x8049002:	0x7406                                      	je     0x804900a <other_label>
+0x8049004:	0x0b0501000000                              	orl    $0x1,%eax
+0x804900a:	0x0b0502000000                              	orl    $0x2,%eax

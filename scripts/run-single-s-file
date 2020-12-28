@@ -1,8 +1,5 @@
 #!/bin/bash
-assembler="../build/single_s_file.s"
-final_file="../build/single_s_file_2.s"
-cat $assembler |
-    ../scripts/remove_directives.pl --file /dev/stdin > $final_file &&
-    ../scripts/collect_instructions_semantics.pl --file $final_file > /dev/null 2>&1 &&
-    ../scripts/kompile.pl --backend $1 &&
-    krun $final_file 
+SCRIPTS="/home/axel/Documents/FV_boot/X86-64-semantics/scripts"
+$SCRIPTS/collect_instructions_semantics_dis.pl --file $1 &&
+$SCRIPTS/kompile.pl --backend java &&
+krun $1

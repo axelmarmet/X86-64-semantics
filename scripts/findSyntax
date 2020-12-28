@@ -1,0 +1,4 @@
+#!/bin/bash
+
+WORKING_DIR="/home/axel/Documents/FV_boot/X86-64-semantics/semantics"
+grep -RP "\s*::=\s*$1" $WORKING_DIR
