@@ -9,7 +9,7 @@
     64'35
   </exitpoint>
   <functargets>
-    stdout |-> ptr ( symloc ( 5 , 0 , 5 , 8 , 0 ) , 64'1 )
+    .Map
   </functargets>
   <rotargets>
     .Map
@@ -21,7 +21,7 @@
     .Map
   </bsstargets>
   <nextLocPc>
-    64'8
+    64'0
   </nextLocPc>
   <lastseenlabel>
     .
@@ -29,6 +29,16 @@
   <currentsection>
     "text"
   </currentsection>
+  <sizeHint>
+    hint ( 64'0 |-> 40
+    64'5 |-> 16
+    64'7 |-> 56
+    64'14 |-> 56
+    64'21 |-> 16
+    64'23 |-> 40
+    64'28 |-> 40
+    64'33 |-> 16 )
+  </sizeHint>
   <memstate>
     <text>
       code ( 16'3888 |-> execinstr ( wrmsr .Operands )
@@ -42,7 +52,7 @@
     <stack>
       <memory>
         <nextLoc>
-          6
+          1
         </nextLoc>
         <objects>
           mem ( loc ( 0 , 1 , 8 , 0 ) |-> byte ( 0 , 40'796716433600 )
@@ -79,35 +89,23 @@
           loc ( 31 , 1 , 8 , 0 ) |-> byte ( 3 , 40'798863917056 )
           loc ( 32 , 1 , 8 , 0 ) |-> byte ( 4 , 40'798863917056 )
           loc ( 33 , 1 , 8 , 0 ) |-> byte ( 0 , 16'3890 )
-          loc ( 34 , 1 , 8 , 0 ) |-> byte ( 1 , 16'3890 )
-          symloc ( 1 , 128 , 1024 , 8 , 1016 ) |-> byte ( 0 , 64'-1 )
-          symloc ( 1 , 128 , 1024 , 8 , 1017 ) |-> byte ( 1 , 64'-1 )
-          symloc ( 1 , 128 , 1024 , 8 , 1018 ) |-> byte ( 2 , 64'-1 )
-          symloc ( 1 , 128 , 1024 , 8 , 1019 ) |-> byte ( 3 , 64'-1 )
-          symloc ( 1 , 128 , 1024 , 8 , 1020 ) |-> byte ( 4 , 64'-1 )
-          symloc ( 1 , 128 , 1024 , 8 , 1021 ) |-> byte ( 5 , 64'-1 )
-          symloc ( 1 , 128 , 1024 , 8 , 1022 ) |-> byte ( 6 , 64'-1 )
-          symloc ( 1 , 128 , 1024 , 8 , 1023 ) |-> byte ( 7 , 64'-1 )
-          symloc ( 5 , 0 , 5 , 8 , 1 ) |-> byte ( 0 , 32'1 )
-          symloc ( 5 , 0 , 5 , 8 , 2 ) |-> byte ( 1 , 32'1 )
-          symloc ( 5 , 0 , 5 , 8 , 3 ) |-> byte ( 2 , 32'1 )
-          symloc ( 5 , 0 , 5 , 8 , 4 ) |-> byte ( 3 , 32'1 ) )
+          loc ( 34 , 1 , 8 , 0 ) |-> byte ( 1 , 16'3890 ) )
         </objects>
         <freed>
           .Set
         </freed>
       </memory>
       <stackbase>
-        stackBaseInfo ( symloc ( 1 , 128 , 1024 , 8 , 0 ) , 64'1016 )
+        stackBaseInfo ( . , . )
       </stackbase>
       <robase>
-        roBaseInfo ( symloc ( 2 , 128 , 256 , 8 , 0 ) , 64'0 , 64'0 )
+        roBaseInfo ( . , . , . )
       </robase>
       <database>
-        dataBaseInfo ( symloc ( 3 , 128 , 256 , 8 , 0 ) , 64'0 , 64'0 )
+        dataBaseInfo ( . , . , . )
       </database>
       <bssbase>
-        bssBaseInfo ( symloc ( 4 , 128 , 256 , 8 , 0 ) , 64'0 , 64'0 )
+        bssBaseInfo ( . , . , . )
       </bssbase>
     </stack>
   </memstate>
@@ -116,29 +114,58 @@
       .
     </argc>
     <argv>
-      64'1024
+      .
     </argv>
   </environment>
+  <processormode>
+    b32
+  </processormode>
+  <cpuidinfo>
+    <processorsignature>
+      "extendedfamily" |-> 8'0
+      "extendedmodel" |-> 4'8
+      "family" |-> 4'6
+      "model" |-> 4'14
+      "processortype" |-> 2'0
+      "stepping" |-> 4'10
+    </processorsignature>
+    <extendedfunctioninfo>
+      "1GBAv" |-> 1'1
+      "64MODEAv" |-> 1'1
+      "EDB" |-> 1'1
+      "LAHF64" |-> 1'1
+      "LZCNT" |-> 1'1
+      "PREFETCHW" |-> 1'1
+      "RDTSCP" |-> 1'1
+      "SYSCALL" |-> 1'1
+    </extendedfunctioninfo>
+  </cpuidinfo>
+  <cpuidavailable>
+    true
+  </cpuidavailable>
   <regstate>
-    "AC" |-> 1'0
     "AF" |-> undefMInt
     "AM" |-> 1'0
     "CD" |-> 1'0
     "CF" |-> 1'0
     "CR2" |-> 32'0
+    "CS" |-> 16'0
     "DE" |-> 1'0
     "DF" |-> 1'0
+    "DS" |-> 16'0
+    "EFLAGS" |-> 32'0
     "EM" |-> 1'0
-    "ET" |-> 1'0
+    "ES" |-> 16'0
+    "ET" |-> 1'1
+    "FS" |-> 16'0
     "FSGBASE" |-> 1'0
+    "GDTR_BASE" |-> 64'0
+    "GDTR_LIMIT" |-> 16'0
+    "GS" |-> 16'0
     "IA32_EFER" |-> 64'1099511628032
-    "ID" |-> 1'0
-    "IF" |-> 1'0
-    "IOPL" |-> 2'0
     "MCE" |-> 1'0
     "MP" |-> 1'0
     "NE" |-> 1'0
-    "NT" |-> 1'0
     "NW" |-> 1'0
     "OF" |-> 1'0
     "OSFXSR" |-> 1'0
@@ -148,7 +175,7 @@
     "PCD" |-> 1'0
     "PCE" |-> 1'0
     "PCIDE" |-> 1'0
-    "PE" |-> 1'0
+    "PE" |-> 1'1
     "PF" |-> 1'1
     "PG" |-> 1'0
     "PGE" |-> 1'0
@@ -166,27 +193,23 @@
     "R14" |-> 64'0
     "R15" |-> 64'0
     "RAX" |-> 64'256
-    "RBP" |-> ptr ( symloc ( 1 , 128 , 1024 , 8 , 0 ) , 64'1016 )
+    "RBP" |-> 64'0
     "RBX" |-> 64'0
     "RCX" |-> 64'3221225600
     "RDI" |-> 64'0
     "RDX" |-> 64'256
-    "RF" |-> 1'0
     "RIP" |-> 64'35
     "RSI" |-> 64'0
-    "RSP" |-> ptr ( symloc ( 1 , 128 , 1024 , 8 , 0 ) , 64'1016 )
+    "RSP" |-> 64'0
     "SF" |-> 1'0
     "SMAP" |-> 1'0
     "SMEP" |-> 1'0
     "SMXE" |-> 1'0
-    "TF" |-> 1'0
+    "SS" |-> 16'0
     "TPL" |-> 4'0
     "TS" |-> 1'0
     "TSD" |-> 1'0
     "UMIP" |-> 1'0
-    "VIF" |-> 1'0
-    "VIP" |-> 1'0
-    "VM" |-> 1'0
     "VME" |-> 1'0
     "VMXE" |-> 1'0
     "WP" |-> 1'0
@@ -212,25 +235,28 @@
     32'3221225600 |-> "IA32_EFER"
   </msrmapping>
   <regstatequeue>
-    ListItem ( "AC" |-> 1'0
-    "AF" |-> 1'0
+    ListItem ( "AF" |-> 1'0
     "AM" |-> 1'0
     "CD" |-> 1'0
     "CF" |-> 1'0
     "CR2" |-> 32'0
+    "CS" |-> 16'0
     "DE" |-> 1'0
     "DF" |-> 1'0
+    "DS" |-> 16'0
+    "EFLAGS" |-> 32'0
     "EM" |-> 1'0
-    "ET" |-> 1'0
+    "ES" |-> 16'0
+    "ET" |-> 1'1
+    "FS" |-> 16'0
     "FSGBASE" |-> 1'0
+    "GDTR_BASE" |-> 64'0
+    "GDTR_LIMIT" |-> 16'0
+    "GS" |-> 16'0
     "IA32_EFER" |-> 64'0
-    "ID" |-> 1'0
-    "IF" |-> 1'0
-    "IOPL" |-> 2'0
     "MCE" |-> 1'0
     "MP" |-> 1'0
     "NE" |-> 1'0
-    "NT" |-> 1'0
     "NW" |-> 1'0
     "OF" |-> 1'0
     "OSFXSR" |-> 1'0
@@ -240,8 +266,8 @@
     "PCD" |-> 1'0
     "PCE" |-> 1'0
     "PCIDE" |-> 1'0
-    "PE" |-> 1'0
-    "PF" |-> 1'0
+    "PE" |-> 1'1
+    "PF" |-> 1'1
     "PG" |-> 1'0
     "PGE" |-> 1'0
     "PKE" |-> 1'0
@@ -258,27 +284,23 @@
     "R14" |-> 64'0
     "R15" |-> 64'0
     "RAX" |-> 64'0
-    "RBP" |-> ptr ( symloc ( 1 , 128 , 1024 , 8 , 0 ) , 64'1016 )
+    "RBP" |-> 64'0
     "RBX" |-> 64'0
     "RCX" |-> 64'0
     "RDI" |-> 64'0
     "RDX" |-> 64'0
-    "RF" |-> 1'0
     "RIP" |-> 64'0
     "RSI" |-> 64'0
-    "RSP" |-> ptr ( symloc ( 1 , 128 , 1024 , 8 , 0 ) , 64'1016 )
+    "RSP" |-> 64'0
     "SF" |-> 1'0
     "SMAP" |-> 1'0
     "SMEP" |-> 1'0
     "SMXE" |-> 1'0
-    "TF" |-> 1'0
+    "SS" |-> 16'0
     "TPL" |-> 4'0
     "TS" |-> 1'0
     "TSD" |-> 1'0
     "UMIP" |-> 1'0
-    "VIF" |-> 1'0
-    "VIP" |-> 1'0
-    "VM" |-> 1'0
     "VME" |-> 1'0
     "VMXE" |-> 1'0
     "WP" |-> 1'0
@@ -298,27 +320,30 @@
     "YMM13" |-> 256'0
     "YMM14" |-> 256'0
     "YMM15" |-> 256'0
-    "ZF" |-> 1'0 )
-    ListItem ( stdout |-> ptr ( symloc ( 5 , 0 , 5 , 8 , 0 ) , 64'1 ) )
-    ListItem ( "AC" |-> 1'0
-    "AF" |-> 1'0
+    "ZF" |-> 1'1 )
+    ListItem ( .Map )
+    ListItem ( "AF" |-> 1'0
     "AM" |-> 1'0
     "CD" |-> 1'0
     "CF" |-> 1'0
     "CR2" |-> 32'0
+    "CS" |-> 16'0
     "DE" |-> 1'0
     "DF" |-> 1'0
+    "DS" |-> 16'0
+    "EFLAGS" |-> 32'0
     "EM" |-> 1'0
-    "ET" |-> 1'0
+    "ES" |-> 16'0
+    "ET" |-> 1'1
+    "FS" |-> 16'0
     "FSGBASE" |-> 1'0
+    "GDTR_BASE" |-> 64'0
+    "GDTR_LIMIT" |-> 16'0
+    "GS" |-> 16'0
     "IA32_EFER" |-> 64'0
-    "ID" |-> 1'0
-    "IF" |-> 1'0
-    "IOPL" |-> 2'0
     "MCE" |-> 1'0
     "MP" |-> 1'0
     "NE" |-> 1'0
-    "NT" |-> 1'0
     "NW" |-> 1'0
     "OF" |-> 1'0
     "OSFXSR" |-> 1'0
@@ -328,8 +353,8 @@
     "PCD" |-> 1'0
     "PCE" |-> 1'0
     "PCIDE" |-> 1'0
-    "PE" |-> 1'0
-    "PF" |-> 1'0
+    "PE" |-> 1'1
+    "PF" |-> 1'1
     "PG" |-> 1'0
     "PGE" |-> 1'0
     "PKE" |-> 1'0
@@ -346,27 +371,23 @@
     "R14" |-> 64'0
     "R15" |-> 64'0
     "RAX" |-> 64'0
-    "RBP" |-> ptr ( symloc ( 1 , 128 , 1024 , 8 , 0 ) , 64'1016 )
+    "RBP" |-> 64'0
     "RBX" |-> 64'0
     "RCX" |-> 64'3221225600
     "RDI" |-> 64'0
     "RDX" |-> 64'0
-    "RF" |-> 1'0
     "RIP" |-> 64'5
     "RSI" |-> 64'0
-    "RSP" |-> ptr ( symloc ( 1 , 128 , 1024 , 8 , 0 ) , 64'1016 )
+    "RSP" |-> 64'0
     "SF" |-> 1'0
     "SMAP" |-> 1'0
     "SMEP" |-> 1'0
     "SMXE" |-> 1'0
-    "TF" |-> 1'0
+    "SS" |-> 16'0
     "TPL" |-> 4'0
     "TS" |-> 1'0
     "TSD" |-> 1'0
     "UMIP" |-> 1'0
-    "VIF" |-> 1'0
-    "VIP" |-> 1'0
-    "VM" |-> 1'0
     "VME" |-> 1'0
     "VMXE" |-> 1'0
     "WP" |-> 1'0
@@ -386,27 +407,30 @@
     "YMM13" |-> 256'0
     "YMM14" |-> 256'0
     "YMM15" |-> 256'0
-    "ZF" |-> 1'0 )
-    ListItem ( stdout |-> ptr ( symloc ( 5 , 0 , 5 , 8 , 0 ) , 64'1 ) )
-    ListItem ( "AC" |-> 1'0
-    "AF" |-> 1'0
+    "ZF" |-> 1'1 )
+    ListItem ( .Map )
+    ListItem ( "AF" |-> 1'0
     "AM" |-> 1'0
     "CD" |-> 1'0
     "CF" |-> 1'0
     "CR2" |-> 32'0
+    "CS" |-> 16'0
     "DE" |-> 1'0
     "DF" |-> 1'0
+    "DS" |-> 16'0
+    "EFLAGS" |-> 32'0
     "EM" |-> 1'0
-    "ET" |-> 1'0
+    "ES" |-> 16'0
+    "ET" |-> 1'1
+    "FS" |-> 16'0
     "FSGBASE" |-> 1'0
+    "GDTR_BASE" |-> 64'0
+    "GDTR_LIMIT" |-> 16'0
+    "GS" |-> 16'0
     "IA32_EFER" |-> 64'0
-    "ID" |-> 1'0
-    "IF" |-> 1'0
-    "IOPL" |-> 2'0
     "MCE" |-> 1'0
     "MP" |-> 1'0
     "NE" |-> 1'0
-    "NT" |-> 1'0
     "NW" |-> 1'0
     "OF" |-> 1'0
     "OSFXSR" |-> 1'0
@@ -416,8 +440,8 @@
     "PCD" |-> 1'0
     "PCE" |-> 1'0
     "PCIDE" |-> 1'0
-    "PE" |-> 1'0
-    "PF" |-> 1'0
+    "PE" |-> 1'1
+    "PF" |-> 1'1
     "PG" |-> 1'0
     "PGE" |-> 1'0
     "PKE" |-> 1'0
@@ -434,27 +458,23 @@
     "R14" |-> 64'0
     "R15" |-> 64'0
     "RAX" |-> 64'0
-    "RBP" |-> ptr ( symloc ( 1 , 128 , 1024 , 8 , 0 ) , 64'1016 )
+    "RBP" |-> 64'0
     "RBX" |-> 64'0
     "RCX" |-> 64'3221225600
     "RDI" |-> 64'0
     "RDX" |-> 64'0
-    "RF" |-> 1'0
     "RIP" |-> 64'7
     "RSI" |-> 64'0
-    "RSP" |-> ptr ( symloc ( 1 , 128 , 1024 , 8 , 0 ) , 64'1016 )
+    "RSP" |-> 64'0
     "SF" |-> 1'0
     "SMAP" |-> 1'0
     "SMEP" |-> 1'0
     "SMXE" |-> 1'0
-    "TF" |-> 1'0
+    "SS" |-> 16'0
     "TPL" |-> 4'0
     "TS" |-> 1'0
     "TSD" |-> 1'0
     "UMIP" |-> 1'0
-    "VIF" |-> 1'0
-    "VIP" |-> 1'0
-    "VM" |-> 1'0
     "VME" |-> 1'0
     "VMXE" |-> 1'0
     "WP" |-> 1'0
@@ -474,27 +494,30 @@
     "YMM13" |-> 256'0
     "YMM14" |-> 256'0
     "YMM15" |-> 256'0
-    "ZF" |-> 1'0 )
-    ListItem ( stdout |-> ptr ( symloc ( 5 , 0 , 5 , 8 , 0 ) , 64'1 ) )
-    ListItem ( "AC" |-> 1'0
-    "AF" |-> undefMInt
+    "ZF" |-> 1'1 )
+    ListItem ( .Map )
+    ListItem ( "AF" |-> undefMInt
     "AM" |-> 1'0
     "CD" |-> 1'0
     "CF" |-> 1'0
     "CR2" |-> 32'0
+    "CS" |-> 16'0
     "DE" |-> 1'0
     "DF" |-> 1'0
+    "DS" |-> 16'0
+    "EFLAGS" |-> 32'0
     "EM" |-> 1'0
-    "ET" |-> 1'0
+    "ES" |-> 16'0
+    "ET" |-> 1'1
+    "FS" |-> 16'0
     "FSGBASE" |-> 1'0
+    "GDTR_BASE" |-> 64'0
+    "GDTR_LIMIT" |-> 16'0
+    "GS" |-> 16'0
     "IA32_EFER" |-> 64'0
-    "ID" |-> 1'0
-    "IF" |-> 1'0
-    "IOPL" |-> 2'0
     "MCE" |-> 1'0
     "MP" |-> 1'0
     "NE" |-> 1'0
-    "NT" |-> 1'0
     "NW" |-> 1'0
     "OF" |-> 1'0
     "OSFXSR" |-> 1'0
@@ -504,7 +527,7 @@
     "PCD" |-> 1'0
     "PCE" |-> 1'0
     "PCIDE" |-> 1'0
-    "PE" |-> 1'0
+    "PE" |-> 1'1
     "PF" |-> 1'1
     "PG" |-> 1'0
     "PGE" |-> 1'0
@@ -522,27 +545,23 @@
     "R14" |-> 64'0
     "R15" |-> 64'0
     "RAX" |-> 64'256
-    "RBP" |-> ptr ( symloc ( 1 , 128 , 1024 , 8 , 0 ) , 64'1016 )
+    "RBP" |-> 64'0
     "RBX" |-> 64'0
     "RCX" |-> 64'3221225600
     "RDI" |-> 64'0
     "RDX" |-> 64'0
-    "RF" |-> 1'0
     "RIP" |-> 64'14
     "RSI" |-> 64'0
-    "RSP" |-> ptr ( symloc ( 1 , 128 , 1024 , 8 , 0 ) , 64'1016 )
+    "RSP" |-> 64'0
     "SF" |-> 1'0
     "SMAP" |-> 1'0
     "SMEP" |-> 1'0
     "SMXE" |-> 1'0
-    "TF" |-> 1'0
+    "SS" |-> 16'0
     "TPL" |-> 4'0
     "TS" |-> 1'0
     "TSD" |-> 1'0
     "UMIP" |-> 1'0
-    "VIF" |-> 1'0
-    "VIP" |-> 1'0
-    "VM" |-> 1'0
     "VME" |-> 1'0
     "VMXE" |-> 1'0
     "WP" |-> 1'0
@@ -563,26 +582,29 @@
     "YMM14" |-> 256'0
     "YMM15" |-> 256'0
     "ZF" |-> 1'0 )
-    ListItem ( stdout |-> ptr ( symloc ( 5 , 0 , 5 , 8 , 0 ) , 64'1 ) )
-    ListItem ( "AC" |-> 1'0
-    "AF" |-> undefMInt
+    ListItem ( .Map )
+    ListItem ( "AF" |-> undefMInt
     "AM" |-> 1'0
     "CD" |-> 1'0
     "CF" |-> 1'0
     "CR2" |-> 32'0
+    "CS" |-> 16'0
     "DE" |-> 1'0
     "DF" |-> 1'0
+    "DS" |-> 16'0
+    "EFLAGS" |-> 32'0
     "EM" |-> 1'0
-    "ET" |-> 1'0
+    "ES" |-> 16'0
+    "ET" |-> 1'1
+    "FS" |-> 16'0
     "FSGBASE" |-> 1'0
+    "GDTR_BASE" |-> 64'0
+    "GDTR_LIMIT" |-> 16'0
+    "GS" |-> 16'0
     "IA32_EFER" |-> 64'0
-    "ID" |-> 1'0
-    "IF" |-> 1'0
-    "IOPL" |-> 2'0
     "MCE" |-> 1'0
     "MP" |-> 1'0
     "NE" |-> 1'0
-    "NT" |-> 1'0
     "NW" |-> 1'0
     "OF" |-> 1'0
     "OSFXSR" |-> 1'0
@@ -592,7 +614,7 @@
     "PCD" |-> 1'0
     "PCE" |-> 1'0
     "PCIDE" |-> 1'0
-    "PE" |-> 1'0
+    "PE" |-> 1'1
     "PF" |-> 1'1
     "PG" |-> 1'0
     "PGE" |-> 1'0
@@ -610,27 +632,23 @@
     "R14" |-> 64'0
     "R15" |-> 64'0
     "RAX" |-> 64'256
-    "RBP" |-> ptr ( symloc ( 1 , 128 , 1024 , 8 , 0 ) , 64'1016 )
+    "RBP" |-> 64'0
     "RBX" |-> 64'0
     "RCX" |-> 64'3221225600
     "RDI" |-> 64'0
     "RDX" |-> 64'256
-    "RF" |-> 1'0
     "RIP" |-> 64'21
     "RSI" |-> 64'0
-    "RSP" |-> ptr ( symloc ( 1 , 128 , 1024 , 8 , 0 ) , 64'1016 )
+    "RSP" |-> 64'0
     "SF" |-> 1'0
     "SMAP" |-> 1'0
     "SMEP" |-> 1'0
     "SMXE" |-> 1'0
-    "TF" |-> 1'0
+    "SS" |-> 16'0
     "TPL" |-> 4'0
     "TS" |-> 1'0
     "TSD" |-> 1'0
     "UMIP" |-> 1'0
-    "VIF" |-> 1'0
-    "VIP" |-> 1'0
-    "VM" |-> 1'0
     "VME" |-> 1'0
     "VMXE" |-> 1'0
     "WP" |-> 1'0
@@ -651,26 +669,29 @@
     "YMM14" |-> 256'0
     "YMM15" |-> 256'0
     "ZF" |-> 1'0 )
-    ListItem ( stdout |-> ptr ( symloc ( 5 , 0 , 5 , 8 , 0 ) , 64'1 ) )
-    ListItem ( "AC" |-> 1'0
-    "AF" |-> undefMInt
+    ListItem ( .Map )
+    ListItem ( "AF" |-> undefMInt
     "AM" |-> 1'0
     "CD" |-> 1'0
     "CF" |-> 1'0
     "CR2" |-> 32'0
+    "CS" |-> 16'0
     "DE" |-> 1'0
     "DF" |-> 1'0
+    "DS" |-> 16'0
+    "EFLAGS" |-> 32'0
     "EM" |-> 1'0
-    "ET" |-> 1'0
+    "ES" |-> 16'0
+    "ET" |-> 1'1
+    "FS" |-> 16'0
     "FSGBASE" |-> 1'0
+    "GDTR_BASE" |-> 64'0
+    "GDTR_LIMIT" |-> 16'0
+    "GS" |-> 16'0
     "IA32_EFER" |-> 64'1099511628032
-    "ID" |-> 1'0
-    "IF" |-> 1'0
-    "IOPL" |-> 2'0
     "MCE" |-> 1'0
     "MP" |-> 1'0
     "NE" |-> 1'0
-    "NT" |-> 1'0
     "NW" |-> 1'0
     "OF" |-> 1'0
     "OSFXSR" |-> 1'0
@@ -680,7 +701,7 @@
     "PCD" |-> 1'0
     "PCE" |-> 1'0
     "PCIDE" |-> 1'0
-    "PE" |-> 1'0
+    "PE" |-> 1'1
     "PF" |-> 1'1
     "PG" |-> 1'0
     "PGE" |-> 1'0
@@ -698,27 +719,23 @@
     "R14" |-> 64'0
     "R15" |-> 64'0
     "RAX" |-> 64'256
-    "RBP" |-> ptr ( symloc ( 1 , 128 , 1024 , 8 , 0 ) , 64'1016 )
+    "RBP" |-> 64'0
     "RBX" |-> 64'0
     "RCX" |-> 64'3221225600
     "RDI" |-> 64'0
     "RDX" |-> 64'256
-    "RF" |-> 1'0
     "RIP" |-> 64'23
     "RSI" |-> 64'0
-    "RSP" |-> ptr ( symloc ( 1 , 128 , 1024 , 8 , 0 ) , 64'1016 )
+    "RSP" |-> 64'0
     "SF" |-> 1'0
     "SMAP" |-> 1'0
     "SMEP" |-> 1'0
     "SMXE" |-> 1'0
-    "TF" |-> 1'0
+    "SS" |-> 16'0
     "TPL" |-> 4'0
     "TS" |-> 1'0
     "TSD" |-> 1'0
     "UMIP" |-> 1'0
-    "VIF" |-> 1'0
-    "VIP" |-> 1'0
-    "VM" |-> 1'0
     "VME" |-> 1'0
     "VMXE" |-> 1'0
     "WP" |-> 1'0
@@ -739,26 +756,29 @@
     "YMM14" |-> 256'0
     "YMM15" |-> 256'0
     "ZF" |-> 1'0 )
-    ListItem ( stdout |-> ptr ( symloc ( 5 , 0 , 5 , 8 , 0 ) , 64'1 ) )
-    ListItem ( "AC" |-> 1'0
-    "AF" |-> undefMInt
+    ListItem ( .Map )
+    ListItem ( "AF" |-> undefMInt
     "AM" |-> 1'0
     "CD" |-> 1'0
     "CF" |-> 1'0
     "CR2" |-> 32'0
+    "CS" |-> 16'0
     "DE" |-> 1'0
     "DF" |-> 1'0
+    "DS" |-> 16'0
+    "EFLAGS" |-> 32'0
     "EM" |-> 1'0
-    "ET" |-> 1'0
+    "ES" |-> 16'0
+    "ET" |-> 1'1
+    "FS" |-> 16'0
     "FSGBASE" |-> 1'0
+    "GDTR_BASE" |-> 64'0
+    "GDTR_LIMIT" |-> 16'0
+    "GS" |-> 16'0
     "IA32_EFER" |-> 64'1099511628032
-    "ID" |-> 1'0
-    "IF" |-> 1'0
-    "IOPL" |-> 2'0
     "MCE" |-> 1'0
     "MP" |-> 1'0
     "NE" |-> 1'0
-    "NT" |-> 1'0
     "NW" |-> 1'0
     "OF" |-> 1'0
     "OSFXSR" |-> 1'0
@@ -768,7 +788,7 @@
     "PCD" |-> 1'0
     "PCE" |-> 1'0
     "PCIDE" |-> 1'0
-    "PE" |-> 1'0
+    "PE" |-> 1'1
     "PF" |-> 1'1
     "PG" |-> 1'0
     "PGE" |-> 1'0
@@ -786,27 +806,23 @@
     "R14" |-> 64'0
     "R15" |-> 64'0
     "RAX" |-> 64'0
-    "RBP" |-> ptr ( symloc ( 1 , 128 , 1024 , 8 , 0 ) , 64'1016 )
+    "RBP" |-> 64'0
     "RBX" |-> 64'0
     "RCX" |-> 64'3221225600
     "RDI" |-> 64'0
     "RDX" |-> 64'256
-    "RF" |-> 1'0
     "RIP" |-> 64'28
     "RSI" |-> 64'0
-    "RSP" |-> ptr ( symloc ( 1 , 128 , 1024 , 8 , 0 ) , 64'1016 )
+    "RSP" |-> 64'0
     "SF" |-> 1'0
     "SMAP" |-> 1'0
     "SMEP" |-> 1'0
     "SMXE" |-> 1'0
-    "TF" |-> 1'0
+    "SS" |-> 16'0
     "TPL" |-> 4'0
     "TS" |-> 1'0
     "TSD" |-> 1'0
     "UMIP" |-> 1'0
-    "VIF" |-> 1'0
-    "VIP" |-> 1'0
-    "VM" |-> 1'0
     "VME" |-> 1'0
     "VMXE" |-> 1'0
     "WP" |-> 1'0
@@ -827,26 +843,29 @@
     "YMM14" |-> 256'0
     "YMM15" |-> 256'0
     "ZF" |-> 1'0 )
-    ListItem ( stdout |-> ptr ( symloc ( 5 , 0 , 5 , 8 , 0 ) , 64'1 ) )
-    ListItem ( "AC" |-> 1'0
-    "AF" |-> undefMInt
+    ListItem ( .Map )
+    ListItem ( "AF" |-> undefMInt
     "AM" |-> 1'0
     "CD" |-> 1'0
     "CF" |-> 1'0
     "CR2" |-> 32'0
+    "CS" |-> 16'0
     "DE" |-> 1'0
     "DF" |-> 1'0
+    "DS" |-> 16'0
+    "EFLAGS" |-> 32'0
     "EM" |-> 1'0
-    "ET" |-> 1'0
+    "ES" |-> 16'0
+    "ET" |-> 1'1
+    "FS" |-> 16'0
     "FSGBASE" |-> 1'0
+    "GDTR_BASE" |-> 64'0
+    "GDTR_LIMIT" |-> 16'0
+    "GS" |-> 16'0
     "IA32_EFER" |-> 64'1099511628032
-    "ID" |-> 1'0
-    "IF" |-> 1'0
-    "IOPL" |-> 2'0
     "MCE" |-> 1'0
     "MP" |-> 1'0
     "NE" |-> 1'0
-    "NT" |-> 1'0
     "NW" |-> 1'0
     "OF" |-> 1'0
     "OSFXSR" |-> 1'0
@@ -856,7 +875,7 @@
     "PCD" |-> 1'0
     "PCE" |-> 1'0
     "PCIDE" |-> 1'0
-    "PE" |-> 1'0
+    "PE" |-> 1'1
     "PF" |-> 1'1
     "PG" |-> 1'0
     "PGE" |-> 1'0
@@ -874,27 +893,23 @@
     "R14" |-> 64'0
     "R15" |-> 64'0
     "RAX" |-> 64'0
-    "RBP" |-> ptr ( symloc ( 1 , 128 , 1024 , 8 , 0 ) , 64'1016 )
+    "RBP" |-> 64'0
     "RBX" |-> 64'0
     "RCX" |-> 64'3221225600
     "RDI" |-> 64'0
     "RDX" |-> 64'0
-    "RF" |-> 1'0
     "RIP" |-> 64'33
     "RSI" |-> 64'0
-    "RSP" |-> ptr ( symloc ( 1 , 128 , 1024 , 8 , 0 ) , 64'1016 )
+    "RSP" |-> 64'0
     "SF" |-> 1'0
     "SMAP" |-> 1'0
     "SMEP" |-> 1'0
     "SMXE" |-> 1'0
-    "TF" |-> 1'0
+    "SS" |-> 16'0
     "TPL" |-> 4'0
     "TS" |-> 1'0
     "TSD" |-> 1'0
     "UMIP" |-> 1'0
-    "VIF" |-> 1'0
-    "VIP" |-> 1'0
-    "VM" |-> 1'0
     "VME" |-> 1'0
     "VMXE" |-> 1'0
     "WP" |-> 1'0
@@ -915,26 +930,29 @@
     "YMM14" |-> 256'0
     "YMM15" |-> 256'0
     "ZF" |-> 1'0 )
-    ListItem ( stdout |-> ptr ( symloc ( 5 , 0 , 5 , 8 , 0 ) , 64'1 ) )
-    ListItem ( "AC" |-> 1'0
-    "AF" |-> undefMInt
+    ListItem ( .Map )
+    ListItem ( "AF" |-> undefMInt
     "AM" |-> 1'0
     "CD" |-> 1'0
     "CF" |-> 1'0
     "CR2" |-> 32'0
+    "CS" |-> 16'0
     "DE" |-> 1'0
     "DF" |-> 1'0
+    "DS" |-> 16'0
+    "EFLAGS" |-> 32'0
     "EM" |-> 1'0
-    "ET" |-> 1'0
+    "ES" |-> 16'0
+    "ET" |-> 1'1
+    "FS" |-> 16'0
     "FSGBASE" |-> 1'0
+    "GDTR_BASE" |-> 64'0
+    "GDTR_LIMIT" |-> 16'0
+    "GS" |-> 16'0
     "IA32_EFER" |-> 64'1099511628032
-    "ID" |-> 1'0
-    "IF" |-> 1'0
-    "IOPL" |-> 2'0
     "MCE" |-> 1'0
     "MP" |-> 1'0
     "NE" |-> 1'0
-    "NT" |-> 1'0
     "NW" |-> 1'0
     "OF" |-> 1'0
     "OSFXSR" |-> 1'0
@@ -944,7 +962,7 @@
     "PCD" |-> 1'0
     "PCE" |-> 1'0
     "PCIDE" |-> 1'0
-    "PE" |-> 1'0
+    "PE" |-> 1'1
     "PF" |-> 1'1
     "PG" |-> 1'0
     "PGE" |-> 1'0
@@ -962,27 +980,23 @@
     "R14" |-> 64'0
     "R15" |-> 64'0
     "RAX" |-> 64'256
-    "RBP" |-> ptr ( symloc ( 1 , 128 , 1024 , 8 , 0 ) , 64'1016 )
+    "RBP" |-> 64'0
     "RBX" |-> 64'0
     "RCX" |-> 64'3221225600
     "RDI" |-> 64'0
     "RDX" |-> 64'256
-    "RF" |-> 1'0
     "RIP" |-> 64'35
     "RSI" |-> 64'0
-    "RSP" |-> ptr ( symloc ( 1 , 128 , 1024 , 8 , 0 ) , 64'1016 )
+    "RSP" |-> 64'0
     "SF" |-> 1'0
     "SMAP" |-> 1'0
     "SMEP" |-> 1'0
     "SMXE" |-> 1'0
-    "TF" |-> 1'0
+    "SS" |-> 16'0
     "TPL" |-> 4'0
     "TS" |-> 1'0
     "TSD" |-> 1'0
     "UMIP" |-> 1'0
-    "VIF" |-> 1'0
-    "VIP" |-> 1'0
-    "VM" |-> 1'0
     "VME" |-> 1'0
     "VMXE" |-> 1'0
     "WP" |-> 1'0
@@ -1003,7 +1017,7 @@
     "YMM14" |-> 256'0
     "YMM15" |-> 256'0
     "ZF" |-> 1'0 )
-    ListItem ( stdout |-> ptr ( symloc ( 5 , 0 , 5 , 8 , 0 ) , 64'1 ) )
+    ListItem ( .Map )
   </regstatequeue>
   <formatcountint>
     0
@@ -1011,217 +1025,4 @@
   <formatcountfloat>
     0
   </formatcountfloat>
-  <c-library>
-    <malloced>
-      .Map
-    </malloced>
-    <atexit>
-      flush ( 1 ) ~> flush ( 2 )
-    </atexit>
-    <at-quick-exit>
-      .
-    </at-quick-exit>
-    <va-lists>
-      .Map
-    </va-lists>
-    <jmp-bufs>
-      .Map
-    </jmp-bufs>
-    <open-files>
-      SetItem ( 0 )
-      SetItem ( 1 )
-      SetItem ( 2 )
-    </open-files>
-    <files>
-      <file>
-        <fid>
-          0
-        </fid>
-        <uri>
-          "stdin:///"
-        </uri>
-        <pos>
-          0
-        </pos>
-        <mode>
-          "r"
-        </mode>
-        <next-byte>
-          .
-        </next-byte>
-        <read-buffer>
-          ""
-        </read-buffer>
-        <write-buffer>
-          ""
-        </write-buffer>
-        <buffer-mode>
-          lineBuf
-        </buffer-mode>
-        <buffer-size>
-          8192
-        </buffer-size>
-        <sending>
-          .List
-        </sending>
-        <done>
-          ""
-        </done>
-        <feof>
-          false
-        </feof>
-        <ferror>
-          0
-        </ferror>
-        <last-op>
-          noLastOp
-        </last-op>
-      </file> <file>
-        <fid>
-          1
-        </fid>
-        <uri>
-          "stdout:///"
-        </uri>
-        <pos>
-          0
-        </pos>
-        <mode>
-          "w"
-        </mode>
-        <next-byte>
-          .
-        </next-byte>
-        <read-buffer>
-          ""
-        </read-buffer>
-        <write-buffer>
-          ""
-        </write-buffer>
-        <buffer-mode>
-          lineBuf
-        </buffer-mode>
-        <buffer-size>
-          8192
-        </buffer-size>
-        <sending>
-          .List
-        </sending>
-        <done>
-          ""
-        </done>
-        <feof>
-          false
-        </feof>
-        <ferror>
-          0
-        </ferror>
-        <last-op>
-          noLastOp
-        </last-op>
-      </file> <file>
-        <fid>
-          2
-        </fid>
-        <uri>
-          "stdout:///"
-        </uri>
-        <pos>
-          0
-        </pos>
-        <mode>
-          "w"
-        </mode>
-        <next-byte>
-          .
-        </next-byte>
-        <read-buffer>
-          ""
-        </read-buffer>
-        <write-buffer>
-          ""
-        </write-buffer>
-        <buffer-mode>
-          noBuf
-        </buffer-mode>
-        <buffer-size>
-          8192
-        </buffer-size>
-        <sending>
-          .List
-        </sending>
-        <done>
-          ""
-        </done>
-        <feof>
-          false
-        </feof>
-        <ferror>
-          0
-        </ferror>
-        <last-op>
-          noLastOp
-        </last-op>
-      </file>
-    </files>
-    <input>
-      .List
-    </input>
-    <output>
-      .List
-    </output>
-    <strerror-cache>
-      .Map
-    </strerror-cache>
-    <sig-handling-state>
-      .
-    </sig-handling-state>
-    <setlocale>
-      .
-    </setlocale>
-    <localeconv>
-      .
-    </localeconv>
-    <getenv>
-      .
-    </getenv>
-  </c-library>
-  <formatting>
-    <format>
-      .List
-    </format>
-    <format-arg>
-      .
-    </format-arg>
-    <format-result>
-      .List
-    </format-result>
-    <format-state>
-      "normal"
-    </format-state>
-    <format-pad-zero>
-      false
-    </format-pad-zero>
-    <format-alt-form>
-      false
-    </format-alt-form>
-    <format-field-width>
-      ""
-    </format-field-width>
-    <format-length>
-      ""
-    </format-length>
-    <format-precision>
-      ""
-    </format-precision>
-    <format-matched>
-      0
-    </format-matched>
-    <format-nread>
-      0
-    </format-nread>
-    <format-item>
-      ""
-    </format-item>
-  </formatting>
 </generatedTop>
