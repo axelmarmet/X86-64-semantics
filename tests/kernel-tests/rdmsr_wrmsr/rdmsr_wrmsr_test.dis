@@ -1,8 +1,8 @@
-0x0:	5 0xb9800000c0                                	movl   $0xc0000080,%ecx
-0x5:	2 0x0f32                                      	rdmsr  
-0x7:	7 0x0b042500010000                            	orl    $0x100,%eax
-0xe:	7 0x0b142500010000                            	orl    $0x100,%edx
-0x15:	2 0x0f30                                      	wrmsr  
-0x17:	5 0xb800000000                                	movl   $0x0,%eax
-0x1c:	5 0xba00000000                                	movl   $0x0,%edx
-0x21:	2 0x0f32                                      	rdmsr  
+0x0:	0xb9800000c0                                	movl   $0xc0000080,%ecx
+0x5:	0x0f32                                      	rdmsr  
+0x7:	0x0b042500010000                            	orl    $0x100,%eax
+0xe:	0x0b142500010000                            	orl    $0x100,%edx
+0x15:	0x0f30                                      	wrmsr  
+0x17:	0xb800000000                                	movl   $0x0,%eax
+0x1c:	0xba00000000                                	movl   $0x0,%edx
+0x21:	0x0f32                                      	rdmsr  
