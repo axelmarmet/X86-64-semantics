@@ -185,6 +185,7 @@ module X86-ABSTRACT-SEMANTICS
   ...</k>
       <regstate> RSMap </regstate>
       <functargets>...  L |-> LoadAddr:PointerVal  ...</functargets>
+  rule <k> H:HexConstant => memOffset(mi(64, hexToInt(H))) ... </k>
   /*@
     Size of instructions.
   rule getISize((OpC:Opcode OpR:Operands):Instruction) => 1
@@ -229,6 +230,17 @@ module X86-ABSTRACT-SEMANTICS
   rule convToRegKeysHelper(%ymm14) => "YMM14"
   rule convToRegKeysHelper(%ymm15) => "YMM15"
   rule convToRegKeysHelper(%eflags) => "EFLAGS"
+
+  rule convToRegKeysHelper(%es) => "ES"
+  rule convToRegKeysHelper(%cs) => "CS"
+  rule convToRegKeysHelper(%ss) => "SS"
+  rule convToRegKeysHelper(%ds) => "DS"
+  rule convToRegKeysHelper(%fs) => "FS"
+  rule convToRegKeysHelper(%gs) => "GS"
+
+  rule convToRegKeysHelper(%gdtr_base) => "GDTR_BASE"
+  rule convToRegKeysHelper(%gdtr_limit) => "GDTR_LIMIT"
+
 /*
   rule convToRegKeysHelper(%mm0)  => "MM0"
   rule convToRegKeysHelper(%mm1)  => "MM1"
@@ -360,6 +372,17 @@ module X86-ABSTRACT-SEMANTICS
   rule convSubRegsToRegs(%ymm13 ) => %ymm13
   rule convSubRegsToRegs(%ymm14 ) => %ymm14
   rule convSubRegsToRegs(%ymm15 ) => %ymm15
+
+  rule convSubRegsToRegs(%es) => %es
+  rule convSubRegsToRegs(%cs) => %cs
+  rule convSubRegsToRegs(%ss) => %ss
+  rule convSubRegsToRegs(%ds) => %ds
+  rule convSubRegsToRegs(%fs) => %fs
+  rule convSubRegsToRegs(%gs) => %gs
+
+  rule convSubRegsToRegs(%gdtr_base) => %gdtr_base
+  rule convSubRegsToRegs(%gdtr_limit) => %gdtr_limit
+
 /*
   rule convSubRegsToRegs(%mm0 )  => %mm0
   rule convSubRegsToRegs(%mm1 )  => %mm1
@@ -410,13 +433,16 @@ module X86-ABSTRACT-SEMANTICS
   rule <k> setRegisterValue(MI256:MInt, Y:Ymm) => .  ...</k>
     <regstate>... convToRegKeys(Y) |-> (_ => MI256) ...</regstate>
   
-  rule <k> setRegisterValue(MI16:MInt, GDTR_LIMIT) => . ...</k>
-    <regstate>... GDTR_LIMIT |-> (_ => MI16) ...</regstate>
+  rule <k> setRegisterValue(MI16:MInt, %gdtr_limit) => . ...</k>
+    <regstate>... "GDTR_LIMIT" |-> (_ => MI16) ...</regstate>
     requires bitwidthMInt(MI16) ==Int 16
 
-  rule <k> setRegisterValue(MI64:MInt, GDTR_BASE) => . ...</k>
-    <regstate>... GDTR_BASE |-> (_ => MI64) ...</regstate>
-    requires bitwidthMInt(MI64) ==Int 64
+  rule <k> setRegisterValue(MI64:MInt, %gdtr_base) => . ...</k>
+    <regstate>... "GDTR_BASE" |-> (_ => MI64) ...</regstate>
+    requires bitwidthMInt (MI64) ==Int 64
+
+  rule <k> setRegisterValue(MI64:MInt, R:Sreg) => . ... </k>
+    <regstate> ... convToRegKeys(R) |-> (_ => MI64) ... </regstate>
 
 /*
   rule <k> setRegisterValue(MI64:MInt, M:Mm) => .  ...</k>
@@ -493,7 +519,7 @@ module X86-ABSTRACT-SEMANTICS
     {RSMap["PVI"]}:>MInt //Bit 1
     {RSMap["VME"]}:>MInt) //Bit 0
   
-  rule getRegisterValue(R:GDTReg, RSMap) => {RSMap[R]}:>MInt
+  rule getRegisterValue(R:GDTReg, RSMap) => {RSMap[convToRegKeys(R)]}:>MInt
 
 /*
   rule getRegisterValue(M:Mm,  RSMap)  =>  {RSMap[convToRegKeys(M)]}:>MInt
@@ -527,6 +553,8 @@ module X86-ABSTRACT-SEMANTICS
     {RSMap["CF"]}:>MInt  //bit 0
   )
 
+  rule immToInt(($ I:Int):Imm) => I
+  rule immToInt(($ H:HexConstant):Imm) => hexToInt(H)
   /*@
     handleImmediateWithSignExtend(Imm, M, N): Compute a MInt corresponding
     to the Imm value of width M and sign extend to N.
@@ -534,19 +562,24 @@ module X86-ABSTRACT-SEMANTICS
 
   // Imm could be an Int
   rule handleImmediateWithSignExtend(($ I:Int):Imm, M:Int, N:Int) => signExtend(mi(M,I), N)
+  rule handleImmediate(($ I:Int):Imm, M:Int) => mi(M,I)
 
   // Or a HexConstant: For hexconstants ike 0x800, we have to provide the substr 800
   // as an argument to  String2Base                                          
   syntax String ::= HexConstant2String ( HexConstant )    [function, hook(STRING.token2string)]
 
-  syntax Int ::= hexToInt ( HexConstant ) [function]
   rule hexToInt ( H:HexConstant ) => 
        String2Base(substrString(HexConstant2String(H), 2, lengthString(HexConstant2String(H))), 16)
+  rule hexToMInt ( H:HexConstant ) => 
+      mi((lengthString(HexConstant2String(H)) -Int 2) *Int 4, hexToInt(H))
 
   //rule handleImmediateWithSignExtend($0x H:HexConstant, M:Int, N:Int) =>
   //  signExtend(mi(M, String2Base(HexConstant2String(H), 16)), N)
   rule handleImmediateWithSignExtend(($ H:HexConstant):Imm, M:Int, N:Int) =>
     signExtend(mi(M, hexToInt(H)), N)
+
+  rule handleImmediate(($ H:HexConstant):Imm, M:Int) =>
+    mi(M, hexToInt(H))
 
   /*@ 
     Check if two registers are the same

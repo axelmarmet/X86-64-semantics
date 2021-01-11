@@ -2,7 +2,6 @@ require "x86-syntax.k"
 require "x86-abstract-syntax.k"
 require "common/common-memory.k"
 require "x86-memory.k"
-require "x86-env-init.k"
 require "x86-mint-wrapper.k"
 
 module X86-CONFIGURATION
@@ -10,26 +9,19 @@ module X86-CONFIGURATION
   imports X86-ABSTRACT-SYNTAX
   imports COMMON-MEMORY-CONFIGURATION
   imports X86-MEMORY-SYNTAX
-  imports X86-INIT-SYNTAX
   imports MINT-WRAPPER-SYNTAX
   imports X86-LOADER-SYNTAX
-  imports COMMON-C-LIBRARY-CONFIGURATION
 
 
-  // configuration <T>
   configuration
-//initEnvironment(ListItem("a.out") ListItem("HelloWorld!") .List) ~> 
-    <k> 
-	//initRegisters($REGV:RegValPairList) ~> 
-	//initEnvironment($ARGV:List) ~> 
-	//initEnvironment(.List) ~> 
+    <k>  
 	$PGM:Lines ~> 
   loadEntryPoint ~>
 	inforegisters ~> 
 	fetch 
     </k>
-    <entrypoint> mi(64, 134516736) </entrypoint>
-    <exitpoint> mi(64, 134516752) </exitpoint>
+    <entrypoint> mi(64, 4198400) </entrypoint>
+    <exitpoint> mi(64, 4198420) </exitpoint>
     <functargets> .Map </functargets> 
     <rotargets> .Map </rotargets> 
     <datatargets> .Map </datatargets> 
@@ -38,6 +30,7 @@ module X86-CONFIGURATION
     <lastseenlabel> .K </lastseenlabel>
     <currentsection> "text" </currentsection>
 
+    <sizeHint> hint(.Map) </sizeHint>
     <memstate>
       <text> code( .Map ) </text>
       <stack>
@@ -54,7 +47,7 @@ module X86-CONFIGURATION
       <argv> .K </argv>
     </environment>
 
-    <processormode> b32 </processormode>
+    <processormode> b64 </processormode>
 
     //obtained by running cpuid on lenovo t480
     <cpuidinfo>
@@ -126,7 +119,7 @@ module X86-CONFIGURATION
       //CR2 
       ("CR2"    |-> mi(32, 0))
       //CR3 bits
-      ("PageDirectoryBase" |-> mi(20, 0))
+      ("PageDirectoryBase" |-> mi(40, 0))
       ("PCD"     |-> mi(1, 0))  // Page-level Cache Disable
       ("PWT"     |-> mi(1, 0))  // Page-level Write-through
       //CR4
@@ -155,12 +148,12 @@ module X86-CONFIGURATION
       //MSR
       ("IA32_EFER" |-> mi(64, 0))
       //SEGMENTS
-      ("CS" |-> mi(16,0))
-      ("DS" |-> mi(16,0))
-      ("SS" |-> mi(16,0))
-      ("ES" |-> mi(16,0))
-      ("FS" |-> mi(16,0))
-      ("GS" |-> mi(16,0))
+      ("CS" |-> mi(64,0))
+      ("DS" |-> mi(64,0))
+      ("SS" |-> mi(64,0))
+      ("ES" |-> mi(64,0))
+      ("FS" |-> mi(64,0))
+      ("GS" |-> mi(64,0))
       ("GDTR_BASE" |-> mi(64,0))
       ("GDTR_LIMIT" |-> mi(16,0))
       //AVX regs
@@ -199,6 +192,4 @@ module X86-CONFIGURATION
 
     <formatcountint> 0 </formatcountint>
     <formatcountfloat> 0 </formatcountfloat>
-    <c-library/>
-    <formatting/>
 endmodule

@@ -25,56 +25,6 @@ module X86-MEMORY-SYNTAX
                     /* Address */ MInt) [function]
 
   /*@
-    Allocate memory: Used for allocating stack and envionment memory
-    If N is the number of stack slots allocated, the upper 64 slots are used for 
-    environment memory.
-  */
-  syntax KItem ::= allocateStackMemory(
-      /* Number of elements */ Int,
-      /* Alignment in bits */ Int)
-
-  /*@
-    Allocate Bss  memory and save allocated pointer
-  */
-  syntax KItem ::= allocateBssMemory(
-      /* Number of elements */ Int,
-      /* Alignment in bits */ Int)
-
-  /*@
-    Allocate Data  memory and save allocated pointer
-  */
-  syntax KItem ::= allocateDataMemory(
-      /* Number of elements */ Int,
-      /* Alignment in bits */ Int)
-
-  /*@
-    Allocate memory: Used for allocating Read only memory
-  */
-  syntax KItem ::= allocateROMemory(
-      /* Number of elements */ Int,
-      /* Alignment in bits */ Int)
-
-  /*@
-    Allocate memory: Used for allocating memory for stdout file IO
-  */
-  syntax KItem ::= allocateSTDOUTMemory(
-      /* Number of elements */ Int,
-      /* Alignment in bits */ Int)
-
-  /*@
-    Allocate memory: Used for allocating local memory
-  */
-  syntax KItem ::= allocateLocalMemory(
-      /* Number of elements */ Int,
-      /* Alignment in bits */ Int)
-
-  /*@
-    Free memory allocated for stack.
-  */
-  //syntax KItem ::= "freeMemory" [token]
-  syntax KItem ::= freeMemory(PointerVal)
-
-  /*@
     Load memory at Address represented by MInt for Int bits
   */
   syntax KItem ::=  loadFromMemory(
@@ -84,10 +34,14 @@ module X86-MEMORY-SYNTAX
   /*@
     Load memory at Address represented by MInt for Int bits read bytes accross
   */
-  syntax KItem ::=  loadFromMemoryAcross(
+  syntax KItem ::=  loadFromMemoryWithoutTranslation(
                       /* Address */ MInt,
-                      /* Load size in bits */ Int)
+                      /* Load size in bits */ Int) [strict]
 
+  syntax MInt ::= loadByte(MInt)       [strict] //8  bits
+  syntax MInt ::= loadWord(MInt)       [strict] //16 bits
+  syntax MInt ::= loadDoubleWord(MInt) [strict] //32 bits
+  syntax MInt ::= loadQuadWord(MInt)   [strict] //64 bits
   /*@
     Sorts to be stored in memory.
   */  
@@ -103,7 +57,8 @@ module X86-MEMORY-SYNTAX
 
   syntax KItem ::=  storeToMemoryAcross(
                       /* Data */ StoreVal,
-                      /* Address */ MInt)
+                      /* Address */ MInt,
+                      /* Store size in bits*/ Int)
 
 endmodule
 
@@ -199,124 +154,6 @@ module X86-MEMORY
   // x86 memory API implementation
 
   /*@
-    Allocate stack memory: Used for allocating stack memory and saving the stack base address
-    N ::= Environment Memory (8 byte fake return address + upper StackSpaceForEnvs slots) + 
-    Stack Memory (Rest)
-
-      *    *
-   A: *----* <-- rsp, rbp
-      *    *                |
- A+8: *    * <-- argv       |
-      *    *                v (High Adress)
-  */
-  rule <k> allocateStackMemory(N:Int, A:Int) =>  
-    saveAllocPointer(allocateLocalMemory(N, A)) ... </k>
-      //<regstate> RSMap => updateMap(RSMap,
-      //                    ("RSP"  |->  mi(addrSize, N -Int StackSpaceForEnvs)) 
-      //                    ("RBP"  |->  mi(addrSize, N -Int StackSpaceForEnvs)) ) 
-      //</regstate>
-      <argv> _ => mi(addrSize, N -Int StackSpaceForEnvs +Int 8) </argv>
-      <stackbase> stackBaseInfo(_:K , _:K => mi(addrSize, N -Int StackSpaceForEnvs))  </stackbase>
-      /*
-      <regstate> RSMap </regstate>
-      <argv> _ => mi(addrSize, 
-          uvalueMInt({RSMap["RSP"]}:>MInt) +Int StackSpaceForEnvs  // N
-          -Int StackSpaceForEnvs +Int 8) </argv>
-      <stackbase> stackBaseInfo(_:K , _:K => mi(addrSize, 
-            uvalueMInt({RSMap["RSP"]}:>MInt) +Int StackSpaceForEnvs // N 
-            -Int StackSpaceForEnvs))  
-      </stackbase>
-	*/
-
-  /*@
-    Save the allocation id for later reads/writes/free.
-  */
-  syntax KItem ::=  saveAllocPointer(KItem) [strict(1)]
-  rule <k> saveAllocPointer(L:MemLoc) => .
-  ... </k>
-    <stackbase> stackBaseInfo(_:K => L, BP:MInt)  </stackbase>
-    <regstate> RSMap => updateMap(RSMap,
-                        ("RSP"  |->  ptr(L, BP)) 
-                        ("RBP"  |->  ptr(L, BP)) ) 
-    </regstate>
-
-  /*@
-    Allocate Bss  memory and save allocated pointer
-  */
-  rule <k> allocateBssMemory(N:Int, A:Int) =>  
-    saveBssPointer(allocateLocalMemory(N, A)) ... </k>
-      <bssbase> 
-        bssBaseInfo(_:K, _:K => mi(addrSize, 0), _:K => mi(addrSize, 0))  
-      </bssbase>
-
-  syntax KItem ::=  saveBssPointer(KItem) [strict(1)]
-  rule <k> saveBssPointer(L:MemLoc) => .
-  ... </k>
-    <bssbase> bssBaseInfo(_:K => L, _:K, _:K)  </bssbase>
-
-  /*@
-    Allocate Data  memory and save allocated pointer
-  */
-  rule <k> allocateDataMemory(N:Int, A:Int) =>  
-    saveDataPointer(allocateLocalMemory(N, A)) ... </k>
-      <database> 
-        dataBaseInfo(_:K, _:K => mi(addrSize, 0), _:K => mi(addrSize, 0))  
-      </database>
-
-  syntax KItem ::=  saveDataPointer(KItem) [strict(1)]
-  rule <k> saveDataPointer(L:MemLoc) => .
-  ... </k>
-    <database> dataBaseInfo(_:K => L, _:K, _:K)  </database>
-
-  /*@
-    Allocate Read Only memory and save allocated pointer
-  */
-  rule <k> allocateROMemory(N:Int, A:Int) =>  
-    saveROPointer(allocateLocalMemory(N, A)) ... </k>
-      <robase> 
-        roBaseInfo(_:K, _:K => mi(addrSize, 0), _:K => mi(addrSize, 0))  
-      </robase>
-
-  syntax KItem ::=  saveROPointer(KItem) [strict(1)]
-  rule <k> saveROPointer(L:MemLoc) => .
-  ... </k>
-    <robase> roBaseInfo(_:K => L, _:K, _:K)  </robase>
-
-  /*@
-    Allocate memory for stdout file pointer
-  */
-  rule <k> allocateSTDOUTMemory(N:Int, A:Int) =>  
-    saveSTDOUTPointer(allocateLocalMemory(N, A)) ... </k>
-
-  syntax KItem ::=  saveSTDOUTPointer(KItem) [strict(1)]
-  rule <k> saveSTDOUTPointer(L:MemLoc) => 
-    storeToMemory(mi(32, #stdout), ptr(L, mi(64,1)), 32)
-  ... </k>
-    <functargets> FMap:Map => FMap[stdout <- ptr(L, mi(64,1))] </functargets>
-
-  /*@
-    Allocate memory: Used for allocating local memory
-    `makeUndefMIntMap(N)` creates N 1 byte undefMInt and return a Map storing them
-    in byte granularity, which are then store in memory.
-  */
-  rule <k> allocateLocalMemory(N:Int, A:Int) => 
-          mAlloc(N,  8, A)
-            // toMemValue(makeUndefMIntMap(N), N *Int 8),
-  ... </k>
-  /*
-  rule <k> allocateLocalMemory(N:Int, A:Int) => 
-          mAlloc(
-            toMemValue(
-              makeUndefMIntMap(N, uvalueMInt({RSMap["RSP"]}:>MInt) +Int StackSpaceForEnvs -Int N), 
-              N *Int 8), A)
-  ... </k>
-  <regstate> RSMap </regstate>
-  */
-
-  rule <k> freeMemory(PV:PointerVal) => mClear(getMemLoc(PV)) ... </k>
-    //<stackbase> stackBaseInfo( Loc:MemLoc, _:K) </stackbase>
-
-  /*@
     Load memory Nbits:Int bits from Address represented AddrMI:MInt
   */
   rule <k>
@@ -330,28 +167,36 @@ module X86-MEMORY
   /*@
     Load memory Nbits:Int bits from Address represented AddrMI:MInt
   */
+  //context loadFromMemory(HOLE:MInt, N:Int) [result(PhysicalAddress)]
   rule 
     <k>
-    loadFromMemory(AddrMI:MInt, Nbits:Int) =>
-      fromMemValue(
-        mRead(
-          loc(
-            uvalueMInt(AddrMI),
-            1,
-            8,
-            0
-          )
-          , 0, 1, 8), 
-        Nbits)
-    ... 
+    loadFromMemory(AddrMI:MInt, Nbits:Int) => 
+      loadFromMemoryWithoutTranslation(AddrMI, Nbits) ...
     </k>
     //<stackbase> stackBaseInfo( L:MemLoc, _:K) </stackbase>
       requires Nbits %Int 8 ==Int 0
 
+  rule <k>
+    loadByte(AddrMI:MInt) => 
+    loadFromMemoryWithoutTranslation(AddrMI, 8) ...
+  </k>
+  rule <k>
+    loadWord(AddrMI:MInt) =>    
+    loadFromMemoryWithoutTranslation(AddrMI, 16) ...
+  </k>
+  
+  rule <k>
+    loadDoubleWord(AddrMI:MInt) => 
+    loadFromMemoryWithoutTranslation(AddrMI, 32) ...
+  </k>
+  rule <k>
+    loadQuadWord(AddrMI:MInt) => 
+    loadFromMemoryWithoutTranslation(AddrMI, 64) ...
+  </k>
 
   rule 
     <k>
-    loadFromMemoryAcross(AddrMI:MInt, Nbits:Int) =>
+    loadFromMemoryWithoutTranslation(AddrMI:MInt, Nbits:Int) =>
       fromMemValueBigEndian(
         mReadAcross(
           loc(
@@ -378,7 +223,7 @@ module X86-MEMORY
 
 
   rule <k>
-    storeToMemoryAcross(Val:MInt, Addr:MInt) => 
+    storeToMemoryAcross(Val:StoreVal, Addr:MInt, NBits:Int) => 
     mWriteAcross(
       loc(
         uvalueMInt(Addr),
@@ -386,9 +231,9 @@ module X86-MEMORY
         8,
         0
       ),
-      toMemValue(Val, bitwidthMInt(Val))
+      toMemValue(Val, NBits)
     )
   ... </k>
     //<stackbase> stackBaseInfo( L:MemLoc, _:K) </stackbase>
-      requires bitwidthMInt(Val) %Int 8 ==Int 0
+      requires NBits %Int 8 ==Int 0
 endmodule

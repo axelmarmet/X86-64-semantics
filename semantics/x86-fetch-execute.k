@@ -1,4 +1,4 @@
-require "x86-syntax.k"
+requires "x86-syntax.k"
 requires "x86-configuration.k"
 
 module X86-FETCH-EXECUTE
@@ -21,13 +21,25 @@ module X86-FETCH-EXECUTE
    */
   rule
     <k> 
-      fetch => loadFromMemory(VirtAddr, 8) ~> decode ~> inforegisters ~> fetch
+      fetch => HMap[Addr] ~> fetch ... 
     </k>
     <exitpoint> ExitPoint </exitpoint>
     <regstate>
-      ... "RIP" |-> VirtAddr  ...
+      ... "RIP" |-> Addr  ...
     </regstate>
-    requires notBool (uvalueMInt(VirtAddr) ==Int uvalueMInt(ExitPoint))
+    <sizeHint> hint(HMap:Map) </sizeHint>
+    requires (notBool (uvalueMInt(Addr) ==Int uvalueMInt(ExitPoint))) andBool
+             (Addr in_keys (HMap))
+
+  rule
+    <k> 
+      Hint:Int ~> fetch => loadFromMemoryWithoutTranslation(Addr, Hint) ~> decode ~> inforegisters ~> fetch ...
+    </k>
+    <exitpoint> ExitPoint </exitpoint>
+    <regstate>
+      ... "RIP" |-> Addr  ...
+    </regstate>
+    requires (notBool (uvalueMInt(Addr) ==Int uvalueMInt(ExitPoint))) 
 
   rule
     <k>
@@ -40,18 +52,6 @@ module X86-FETCH-EXECUTE
       ... "RIP" |-> (VirtAddr => addMInt(VirtAddr, mi(64, bitwidthMInt(Val) /Int 8))) ...
     </regstate>
     requires Val in_keys ( CMap )
-
-  rule
-    <k>
-      (memLoadValue(Val:MInt):MemLoadValue => loadFromMemoryAcross(VirtAddr, bitwidthMInt(Val) +Int 8)) ~> decode ...
-    </k>
-    <text>
-      code (CMap)
-    </text>
-    <regstate>
-      ... "RIP" |-> VirtAddr  ...
-    </regstate>
-    requires notBool Val in_keys ( CMap )
 
 
   /*@ 

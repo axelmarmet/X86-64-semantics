@@ -646,13 +646,21 @@ module X86-LOADER
   rule  
     <k> 
       (Addr:HexConstant : Asm:HexConstant (OpC:Opcode OpR:Operands):Instruction):Line => 
-      storeToMemoryAcross(
-        mi(getAsmSize(Asm) *Int 8, hexToInt(Asm)),
-        mi(64, hexToInt(Addr))) 
-      ...
+      mi(64, hexToInt(Addr)) ~> mi(getAsmSize(Asm) *Int 8, hexToInt(Asm)) ~> (OpC OpR) ...
     </k>
-    <text> code(M:Map => M[ mi(getAsmSize(Asm) *Int 8, hexToInt(Asm)) <- execinstr(OpC OpR)])</text>
-    <nextLocPc> L:MInt => addMInt(L, mi(64, 1)) </nextLocPc>
+    
+  rule
+    <k>
+      Addr:MInt ~> Asm:MInt ~> (OpC:Opcode OpR:Operands):Instruction => 
+      storeToMemoryAcross(
+        Asm,
+        Addr,
+        bitwidthMInt(Asm)
+      ) ...
+    </k>
+    <sizeHint> hint(M1:Map => M1[Addr <- bitwidthMInt(Asm)]) </sizeHint>
+    <text> code(M:Map => M[Asm <- execinstr(OpC OpR)]) </text>
+
 
   /*@
     Load data in memory
@@ -661,14 +669,23 @@ module X86-LOADER
     <k> 
       (Addr:HexConstant : Data:DataBytes ):Line => 
       storeToMemoryAcross(
-        concatenateMInts(convertDataBytesToMInts(Data)),
-        mi(64, hexToInt(Addr))) 
+        convertDataBytesToMIntMap(Data),
+        mi(64, hexToInt(Addr)),
+        dataSize(Data) *Int 8) 
       ...
     </k>
   
-  syntax MInts ::= convertDataBytesToMInts(D:DataBytes) [function]
-  rule convertDataBytesToMInts(.DataBytes) => .MInts
-  rule convertDataBytesToMInts(D1 Tail) => mi(8, hexToInt(D1)) convertDataBytesToMInts(Tail)
+  syntax MIntMap ::= convertDataBytesToMIntMap(DataBytes) [function]
+  rule convertDataBytesToMIntMap(D:DataBytes) => convertDataBytesToMIntMapAux(D, 0, .Map)
+
+  syntax MIntMap ::= convertDataBytesToMIntMapAux(DataBytes, Int ,Map) [function] 
+  rule convertDataBytesToMIntMapAux(.DataBytes, _, M) => mimap(M)
+  rule convertDataBytesToMIntMapAux(Head Tail, I, M) => 
+    convertDataBytesToMIntMapAux(Tail, I +Int 1, M[I <- mi(8, hexToInt(Head))])
+
+  syntax Int ::= dataSize(DataBytes) [function]
+  rule dataSize(.DataBytes) => 0
+  rule dataSize(Da Tail) => 1 +Int dataSize(Tail)
 
   rule  <k>.Lines => .K ...</k>
 

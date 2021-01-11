@@ -29,10 +29,13 @@ module X86-ABSTRACT-SYNTAX
   syntax MInt ::= getAddress(DisAddress) [function]
   syntax MInt ::= getMIntVal(PointerVal) [function]
 
+  syntax Int ::= hexToInt ( HexConstant ) [function]
+  syntax MInt ::= hexToMInt ( HexConstant ) [function]
   /*@
     Sorts of config cell entities
   */  
   syntax CodeInMemory ::= code(/*PointerVal -> storeInstr(Instruction)*/ Map)
+  syntax Hint ::= hint(Map)
   //syntax CodeInMemory ::= code(/*iloc(MInt) -> storeInstr(Instruction)*/ Map)
   //syntax Int ::= iloc(MInt)
   syntax StackBaseInfo ::= stackBaseInfo(/*MemLoc, Intial Offset*/ K, K)
@@ -134,6 +137,13 @@ module X86-ABSTRACT-SYNTAX
   */
   syntax MInt ::=  handleImmediateWithSignExtend(Imm, Int, Int) [function]
 
+  /*@
+    handleImmediate(Imm, M): Compute a MInt corresponding
+    to the Imm value of width M
+  */
+  syntax MInt ::=  handleImmediate(Imm, Int) [function]
+
+  syntax Int ::= immToInt(Imm) [function]
   /*@ 
     Check if two registers are the same
   */  

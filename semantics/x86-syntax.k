@@ -128,7 +128,6 @@ module X86-SYNTAX
                        | X86Id
                        | DisAddress
                        | Builtin
-                       | FarJumpTarget
                        | "$" X86Id
                        | "$" X86Id "+" Int
                        /*@
@@ -148,8 +147,6 @@ module X86-SYNTAX
 //                     | St
 //                     | Memoffs
 //                     | Sreg
-
-  syntax FarJumpTarget ::= Imm ":" Imm
 
   syntax MemOffset ::= memOffset ( MInt )
 
@@ -381,8 +378,8 @@ module X86-SYNTAX
                | "%ymm14"
                | "%ymm15"
 
-  syntax GDTReg ::=  "GDTR_BASE"
-                  |  "GDTR_LIMIT" 
+  syntax GDTReg ::=  "%gdtr_base"
+                  |  "%gdtr_limit" 
   
   syntax Opcode ::=  "adcb"
                   | "adcl"
