@@ -38,10 +38,10 @@ module X86-MEMORY-SYNTAX
                       /* Address */ MInt,
                       /* Load size in bits */ Int) [strict]
 
-  syntax MInt ::= loadByte(MInt)       [strict] //8  bits
-  syntax MInt ::= loadWord(MInt)       [strict] //16 bits
-  syntax MInt ::= loadDoubleWord(MInt) [strict] //32 bits
-  syntax MInt ::= loadQuadWord(MInt)   [strict] //64 bits
+  syntax KItem ::= loadByte(MInt)       [strict] //8  bits
+  syntax KItem ::= loadWord(MInt)       [strict] //16 bits
+  syntax KItem ::= loadDoubleWord(MInt) [strict] //32 bits
+  syntax KItem ::= loadQuadWord(MInt)   [strict] //64 bits
   /*@
     Sorts to be stored in memory.
   */  

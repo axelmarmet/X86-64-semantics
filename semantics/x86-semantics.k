@@ -11,6 +11,7 @@ require "x86-imm-folding.k"
 require "x86-msr.k"
 require "x86-eflags.k"
 require "x86-cpuid.k"
+require "x86-paging"
 
 module X86-SEMANTICS
   imports X86-LOADER
@@ -26,4 +27,5 @@ module X86-SEMANTICS
   imports X86-MSR
   imports X86-EFLAGS
   imports X86-CPUID
+  imports X86-PAGING
 endmodule

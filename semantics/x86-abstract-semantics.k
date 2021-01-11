@@ -2,13 +2,13 @@ require "x86-configuration.k"
 
 module X86-ABSTRACT-SEMANTICS
   imports X86-CONFIGURATION
-
+  imports X86-MEMORY
+  
   /* Processor modes */
   rule  isRealAddressMode(RSMap:Map) => eqMInt(mi(1,0), {RSMap["PE"]}:>MInt) 
   rule  isProtectedMode(RSMap:Map) => eqMInt(mi(1,1), {RSMap["PE"]}:>MInt) 
   rule  isVirtual8086Mode(RSMap:Map) => eqMInt(mi(1,0), {RSMap["VMkz"]}:>MInt) 
   rule getCPL(RSMap:Map) => uvalueMInt(extractMInt({RSMap["CS"]}:>MInt, 2, 0))
-  
 
   /*@<
     Function related to null checks

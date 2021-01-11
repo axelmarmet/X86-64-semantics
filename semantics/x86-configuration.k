@@ -17,7 +17,9 @@ module X86-CONFIGURATION
     <k>  
 	$PGM:Lines ~> 
   loadEntryPoint ~>
-	inforegisters ~> 
+	inforegisters ~>
+  //loadWord(mi(64, 4198400))
+  //loadWord(mi(64, 4198400)) ~> setRegisterValue(mi(16,0), %gdtr_limit)
 	fetch 
     </k>
     <entrypoint> mi(64, 4198400) </entrypoint>
