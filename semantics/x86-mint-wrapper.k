@@ -29,6 +29,8 @@ module MINT-WRAPPER-SYNTAX
   syntax MInt ::= "oneMIntW64"
   syntax MInt ::= "divideError"
 
+  syntax MInt ::= defUndef(MInt) [function]
+
   /*@
     Sort List
   */
@@ -357,6 +359,8 @@ module MINT-WRAPPER
   rule oneMIntW1    =>  mi(1,  1) [macro]
   rule oneMIntW64   =>  mi(64, 1) [macro]
 
+  rule defUndef(undefMInt) => mi(1,0) 
+  rule defUndef(M:MInt) => M [owise]
   /*
     Concatenation defined recursively
    */

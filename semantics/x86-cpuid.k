@@ -27,12 +27,13 @@ module X86-CPUID
         =>
         //EAX has max basic leaf supported,
         //EBX, ECX, EDX spell "GenuineIntel"
-        writeCpuIdRes(mi(32, 0), 
+        writeCpuIdRes(M, 
                       mi(32, 1970169159),
                       mi(32, 1818588270),
                       mi(32, 1231384169))
         ...
     </k>
+    <maxbasicleaf> M:MInt </maxbasicleaf>
     <regstate>
         ... "RAX" |-> mi(64, 0) ...
     </regstate>
@@ -42,12 +43,13 @@ module X86-CPUID
     =>
     //EAX has max extended function leaf supported,
     //EBX, ECX, EDX spell are reserved
-    writeCpuIdRes(mi(32, (1 <<Int 31) |Int 7), 
+    writeCpuIdRes(M, 
                   mi(32, 0),
                   mi(32, 0),
                   mi(32, 0))
     ...
     </k>
+    <maxextendedleaf> M:MInt </maxextendedleaf> //0x80000007
     <regstate>
         ... "RAX" |-> mi(64, 1 <<Int 31) ...
     </regstate>

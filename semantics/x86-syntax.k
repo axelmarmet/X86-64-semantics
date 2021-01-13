@@ -10,6 +10,7 @@ module X86-SORT
   syntax Operand
   syntax Operand
   syntax Register
+  syntax ControlRegister
   syntax Offset
   syntax Imm
   syntax Mem
@@ -130,6 +131,7 @@ module X86-SYNTAX
                        | Builtin
                        | "$" X86Id
                        | "$" X86Id "+" Int
+                       | ControlRegister
                        /*@
                         * Adding Int and Float as operands helps in
                         * testing float-conversion directly.
@@ -161,7 +163,6 @@ module X86-SYNTAX
                     | Xmm
                     | Ymm
                     | Mm
-                    | RControl
 //  syntax Memoffs ::= Offset
                     | Sreg
                     | GDTReg
@@ -241,7 +242,7 @@ module X86-SYNTAX
   syntax Rip ::= "%rip"
   syntax Scale ::= Int
 
-  syntax RControl ::= "%cr0"
+  syntax ControlRegister ::= "%cr0"
                     | "%cr1"
                     | "%cr2"
                     | "%cr3"

@@ -652,7 +652,7 @@ module X86-LOADER
   rule
     <k>
       Addr:MInt ~> Asm:MInt ~> (OpC:Opcode OpR:Operands):Instruction => 
-      storeToMemoryAcross(
+      storeToMemoryWithoutTranslation(
         Asm,
         Addr,
         bitwidthMInt(Asm)
@@ -668,7 +668,7 @@ module X86-LOADER
   rule  
     <k> 
       (Addr:HexConstant : Data:DataBytes ):Line => 
-      storeToMemoryAcross(
+      storeToMemoryWithoutTranslation(
         convertDataBytesToMIntMap(Data),
         mi(64, hexToInt(Addr)),
         dataSize(Data) *Int 8) 

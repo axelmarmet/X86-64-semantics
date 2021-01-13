@@ -15,7 +15,7 @@ module PUSHL-R32
       storeToMemory(
           getRegisterValue(R1, RSMap), 
           subMInt(getRegisterValue(%rsp, RSMap), mi(64, 4)), 
-          64)  ~>  
+          32)  ~>  
       decRSPInBytes(4)
   ...</k>
   <regstate> RSMap </regstate>

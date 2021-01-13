@@ -7,8 +7,8 @@ module X86-ABSTRACT-SEMANTICS
   /* Processor modes */
   rule  isRealAddressMode(RSMap:Map) => eqMInt(mi(1,0), {RSMap["PE"]}:>MInt) 
   rule  isProtectedMode(RSMap:Map) => eqMInt(mi(1,1), {RSMap["PE"]}:>MInt) 
-  rule  isVirtual8086Mode(RSMap:Map) => eqMInt(mi(1,0), {RSMap["VMkz"]}:>MInt) 
-  rule getCPL(RSMap:Map) => uvalueMInt(extractMInt({RSMap["CS"]}:>MInt, 2, 0))
+  rule  isVirtual8086Mode(RSMap:Map) => eqMInt(mi(1,1), {RSMap["VM"]}:>MInt) 
+  rule  getCPL(RSMap:Map) => uvalueMInt(extractMask({RSMap["CS"]}:>MInt, 2, 0))
 
   /*@<
     Function related to null checks
@@ -229,7 +229,6 @@ module X86-ABSTRACT-SEMANTICS
   rule convToRegKeysHelper(%ymm13) => "YMM13"
   rule convToRegKeysHelper(%ymm14) => "YMM14"
   rule convToRegKeysHelper(%ymm15) => "YMM15"
-  rule convToRegKeysHelper(%eflags) => "EFLAGS"
 
   rule convToRegKeysHelper(%es) => "ES"
   rule convToRegKeysHelper(%cs) => "CS"
@@ -444,6 +443,85 @@ module X86-ABSTRACT-SEMANTICS
   rule <k> setRegisterValue(MI64:MInt, R:Sreg) => . ... </k>
     <regstate> ... convToRegKeys(R) |-> (_ => MI64) ... </regstate>
 
+  rule <k> setControlRegisterValue(MI32:MInt, %cr0) => . ... </k> 
+  <regstate>
+    RSMap:Map => updateMap(RSMap,
+        "PG" |-> extractMask(MI32, 1, 31)
+        "CD" |-> extractMask(MI32, 1, 30)
+        "NW" |-> extractMask(MI32, 1, 29)
+        "AN" |-> extractMask(MI32, 1, 18)
+        "WP" |-> extractMask(MI32, 1, 16)
+        "NE" |-> extractMask(MI32, 1, 5)
+        "ET" |-> extractMask(MI32, 1, 4)
+        "TS" |-> extractMask(MI32, 1, 3)
+        "EM" |-> extractMask(MI32, 1, 2)
+        "MP" |-> extractMask(MI32, 1, 1)
+        "PE" |-> extractMask(MI32, 1, 0)
+    )
+  </regstate>
+
+  rule <k> setControlRegisterValue(MI32:MInt, %cr2) => . ... </k>
+  <regstate> ... "CR2" |-> (_ => MI32) ... </regstate>
+
+  rule <k> setControlRegisterValue(MI32:MInt, %cr3) => . ... </k> 
+  <regstate>    
+    RSMap:Map => updateMap(RSMap,
+      "PageDirectoryBase" |-> zeroExtend(extractMask(MI32, 20, 12), 20)
+      "PCD" |->               extractMask(MI32,1,4)
+      "PWT" |->               extractMask(MI32,1,3)
+    )
+  </regstate>
+
+  rule <k> setControlRegisterValue(MI32:MInt, %cr4) => . ... </k> 
+  <regstate>    
+    RSMap:Map => updateMap(RSMap,
+    "PKE" |-> extractMask(MI32, 1, 22)
+    "SMAP" |-> extractMask(MI32, 1, 21)
+    "SMEP" |-> extractMask(MI32, 1, 20)
+    "OXSAVE" |-> extractMask(MI32, 1, 18)
+    "PCIDE" |-> extractMask(MI32, 1, 17)
+    "FSGSBASE" |-> extractMask(MI32, 1, 16)
+    "SMXE" |-> extractMask(MI32, 1, 14)
+    "VMXE" |-> extractMask(MI32, 1, 13)
+    "UMIP" |-> extractMask(MI32, 1, 11)
+    "OSXMMEXCPT" |-> extractMask(MI32, 1, 10)
+    "OSFXSR" |-> extractMask(MI32, 1, 9)
+    "PCE" |-> extractMask(MI32, 1, 8)
+    "PGE" |-> extractMask(MI32, 1, 7)
+    "MCE" |-> extractMask(MI32, 1, 6)
+    "PAE" |-> extractMask(MI32, 1, 5)
+    "PSE" |-> extractMask(MI32, 1, 4)
+    "DE" |-> extractMask(MI32, 1, 3)
+    "TSD" |-> extractMask(MI32, 1, 2)
+    "PVI" |-> extractMask(MI32, 1, 1)
+    "VME" |-> extractMask(MI32, 1, 0)
+    )
+  </regstate>
+
+  rule <k> setControlRegisterValue(MI32:MInt, %eflags) => . ... </k> 
+  <regstate>    
+    RSMap:Map => updateMap(RSMap,
+    "ID"   |-> extractMask(MI32, 1,  21)
+    "VIP"  |-> extractMask(MI32, 1,  20)
+    "VIF"  |-> extractMask(MI32, 1,  19)
+    "AC"   |-> extractMask(MI32, 1,  18)
+    "VM"   |-> extractMask(MI32, 1,  17)
+    "RF"   |-> extractMask(MI32, 1,  16)
+    "NT"   |-> extractMask(MI32, 1,  14)
+    "IOPL" |-> extractMask(MI32, 2,  12)
+    "OF"   |-> extractMask(MI32, 1,  11)
+    "DF"   |-> extractMask(MI32, 1,  10)
+    "IF"   |-> extractMask(MI32, 1,  9)
+    "TF"   |-> extractMask(MI32, 1,  8)
+    "SF"   |-> extractMask(MI32, 1,  7)
+    "ZF"   |-> extractMask(MI32, 1,  6)
+    "AF"   |-> extractMask(MI32, 1,  4)
+    "PF"   |-> extractMask(MI32, 1,  2)
+    "CF"   |-> extractMask(MI32, 1,  0)
+    )
+  </regstate>
+
+
 /*
   rule <k> setRegisterValue(MI64:MInt, M:Mm) => .  ...</k>
     <regstate>... convToRegKeys(M) |-> ( _ => MI64) ...</regstate>
@@ -470,54 +548,81 @@ module X86-ABSTRACT-SEMANTICS
   rule getRegisterValue(R:Rh,  RSMap)  =>  extractMask({RSMap[convToRegKeys(R)]}:>MInt, 8, 8)
   rule getRegisterValue(X:Xmm, RSMap)  =>  extractMask({RSMap[convToRegKeys(X)]}:>MInt, 128, 0)
   rule getRegisterValue(Y:Ymm, RSMap)  =>  {RSMap[convToRegKeys(Y)]}:>MInt
-  rule getRegisterValue(%cr0, RSMap) => concatenateMInts(
-    {RSMap["PG"]}:>MInt //bit 31
-    {RSMap["CD"]}:>MInt //bit 30
-    {RSMap["NW"]}:>MInt //bit 29
+  rule getControlRegisterValue(%cr0, RSMap) => concatenateMInts(
+    defUndef({RSMap["PG"]}:>MInt) //bit 31
+    defUndef({RSMap["CD"]}:>MInt) //bit 30
+    defUndef({RSMap["NW"]}:>MInt) //bit 29
     mi(10,0)    //bit 28 to 19
-    {RSMap["AN"]}:>MInt //bit 18
+    defUndef({RSMap["AM"]}:>MInt) //bit 18
     mi(1,0)     //bit 17
-    {RSMap["WP"]}:>MInt //bit 16
+    defUndef({RSMap["WP"]}:>MInt) //bit 16
     mi(10,0)    //bit 15 to 6
-    {RSMap["NE"]}:>MInt //bit 5
-    {RSMap["ET"]}:>MInt //bit 4
-    {RSMap["TS"]}:>MInt //bit 3
-    {RSMap["EM"]}:>MInt //bit 2
-    {RSMap["MP"]}:>MInt //bit 1
-    {RSMap["PE"]}:>MInt)  //bit 0
+    defUndef({RSMap["NE"]}:>MInt) //bit 5
+    defUndef({RSMap["ET"]}:>MInt) //bit 4
+    defUndef({RSMap["TS"]}:>MInt) //bit 3
+    defUndef({RSMap["EM"]}:>MInt) //bit 2
+    defUndef({RSMap["MP"]}:>MInt) //bit 1
+    defUndef({RSMap["PE"]}:>MInt))  //bit 0
   
-  rule getRegisterValue(%cr2, RSMap) => {RSMap["CR2"]}:>MInt
-  rule getRegisterValue(%cr3, RSMap) => concatenateMInts(
-    {RSMap["PageDirectoryBase"]}:>MInt // Bits 31 to 12
+  rule getControlRegisterValue(%cr2, RSMap) => {RSMap["CR2"]}:>MInt
+  rule getControlRegisterValue(%cr3, RSMap) => concatenateMInts(
+    defUndef({RSMap["PageDirectoryBase"]}:>MInt) // Bits 31 to 12
     mi(7, 0)                           // Bits 11 to 5
-    {RSMap["PCD"]}:>MInt               // Bit 4
-    {RSMap["PWT"]}:>MInt               // Bit 3
+    defUndef({RSMap["PCD"]}:>MInt)               // Bit 4
+    defUndef({RSMap["PWT"]}:>MInt)               // Bit 3
     mi(3, 0))                          // Bits 2 to 0
-  rule getRegisterValue(%cr4, RSMap) => concatenateMInts(
+  rule getControlRegisterValue(%cr4, RSMap) => concatenateMInts(
     mi(9,0) // Bits 31 to 23
-    {RSMap["PKE"]}:>MInt //Bit 22
-    {RSMap["SMAP"]}:>MInt //Bit 21
-    {RSMap["SMEP"]}:>MInt //Bit 20
+    defUndef({RSMap["PKE"]}:>MInt) //Bit 22
+    defUndef({RSMap["SMAP"]}:>MInt) //Bit 21
+    defUndef({RSMap["SMEP"]}:>MInt) //Bit 20
     mi(1,0) // Bit 19
-    {RSMap["OXSAVE"]}:>MInt //Bit 18
-    {RSMap["PCIDE"]}:>MInt //Bit 17
-    {RSMap["FSGSBASE"]}:>MInt //Bit 16
+    defUndef({RSMap["OSXSAVE"]}:>MInt) //Bit 18
+    defUndef({RSMap["PCIDE"]}:>MInt) //Bit 17
+    defUndef({RSMap["FSGSBASE"]}:>MInt) //Bit 16
     mi(1,0) //Bit 15
-    {RSMap["SMXE"]}:>MInt //Bit 14
-    {RSMap["VMXE"]}:>MInt //Bit 13
+    defUndef({RSMap["SMXE"]}:>MInt) //Bit 14
+    defUndef({RSMap["VMXE"]}:>MInt) //Bit 13
     mi(1,0) //Bit 12
-    {RSMap["UMIP"]}:>MInt //Bit 11
-    {RSMap["OSXMMEXCPT"]}:>MInt //Bit 10
-    {RSMap["OSFXSR"]}:>MInt //Bit 9
-    {RSMap["PCE"]}:>MInt //Bit 8
-    {RSMap["PGE"]}:>MInt //Bit 7
-    {RSMap["MCE"]}:>MInt //Bit 6
-    {RSMap["PAE"]}:>MInt //Bit 5
-    {RSMap["PSE"]}:>MInt //Bit 4
-    {RSMap["DE"]}:>MInt //Bit 3
-    {RSMap["TSD"]}:>MInt //Bit 2
-    {RSMap["PVI"]}:>MInt //Bit 1
-    {RSMap["VME"]}:>MInt) //Bit 0
+    defUndef({RSMap["UMIP"]}:>MInt) //Bit 11
+    defUndef({RSMap["OSXMMEXCPT"]}:>MInt) //Bit 10
+    defUndef({RSMap["OSFXSR"]}:>MInt) //Bit 9
+    defUndef({RSMap["PCE"]}:>MInt) //Bit 8
+    defUndef({RSMap["PGE"]}:>MInt) //Bit 7
+    defUndef({RSMap["MCE"]}:>MInt) //Bit 6
+    defUndef({RSMap["PAE"]}:>MInt) //Bit 5
+    defUndef({RSMap["PSE"]}:>MInt) //Bit 4
+    defUndef({RSMap["DE"]}:>MInt) //Bit 3
+    defUndef({RSMap["TSD"]}:>MInt) //Bit 2
+    defUndef({RSMap["PVI"]}:>MInt) //Bit 1
+    defUndef({RSMap["VME"]}:>MInt)) //Bit 0
+  /*
+    From page 3-16 of Intel 64 and IA-32 Architectures Software Developper's Manual Volume 1
+  */
+  rule getControlRegisterValue(%eflags, RSMap) => concatenateMInts(
+    mi(10,0)     //bits 31 to 22 set to 0
+    defUndef({RSMap["ID"]}:>MInt)  //bit 21
+    defUndef({RSMap["VIP"]}:>MInt) //bit 20
+    defUndef({RSMap["VIF"]}:>MInt) //bit 19
+    defUndef({RSMap["AC"]}:>MInt)  //bit 18
+    defUndef({RSMap["VM"]}:>MInt)  //bit 17
+    defUndef({RSMap["RF"]}:>MInt)  //bit 16
+    mi(1,0)      //bit 15 set to 0
+    defUndef({RSMap["NT"]}:>MInt)  //bit 14
+    defUndef({RSMap["IOPL"]}:>MInt)//bit 13 to 12
+    defUndef({RSMap["OF"]}:>MInt)  //bit 11
+    defUndef({RSMap["DF"]}:>MInt)  //bit 10
+    defUndef({RSMap["IF"]}:>MInt)  //bit 9
+    defUndef({RSMap["TF"]}:>MInt)  //bit 8
+    defUndef({RSMap["SF"]}:>MInt)  //bit 7
+    defUndef({RSMap["ZF"]}:>MInt)  //bit 6
+    mi(1,0)      //bit 5 set to 0
+    defUndef({RSMap["AF"]}:>MInt)  //bit 4
+    mi(1,0)      //bit 3 set to 0
+    defUndef({RSMap["PF"]}:>MInt)  //bit 2
+    mi(1,1)      //bit 1 set to 1
+    defUndef({RSMap["CF"]}:>MInt)  //bit 0
+  )
   
   rule getRegisterValue(R:GDTReg, RSMap) => {RSMap[convToRegKeys(R)]}:>MInt
 
@@ -525,33 +630,6 @@ module X86-ABSTRACT-SEMANTICS
   rule getRegisterValue(M:Mm,  RSMap)  =>  {RSMap[convToRegKeys(M)]}:>MInt
 */
   rule getParentValue(R:Register, RSMap) => getRegisterValue(convSubRegsToRegs(R), RSMap)
-/*
-  From page 3-16 of Intel 64 and IA-32 Architectures Software Developper's Manual Volume 1
-*/
-  rule getEFLAGSValue(RSMap) => concatenateMInts(
-    mi(10,0)     //bits 31 to 22 set to 0
-    {RSMap["ID"]}:>MInt  //bit 21
-    {RSMap["VIP"]}:>MInt //bit 20
-    {RSMap["VIF"]}:>MInt //bit 19
-    {RSMap["AC"]}:>MInt  //bit 18
-    {RSMap["VM"]}:>MInt  //bit 17
-    {RSMap["RF"]}:>MInt  //bit 16
-    mi(1,0)      //bit 15 set to 0
-    {RSMap["NT"]}:>MInt  //bit 14
-    {RSMap["IOPL"]}:>MInt//bit 13 to 12
-    {RSMap["OF"]}:>MInt  //bit 11
-    {RSMap["DF"]}:>MInt  //bit 10
-    {RSMap["IF"]}:>MInt  //bit 9
-    {RSMap["TF"]}:>MInt  //bit 8
-    {RSMap["SF"]}:>MInt  //bit 7
-    {RSMap["ZF"]}:>MInt  //bit 6
-    mi(1,0)      //bit 5 set to 0
-    {RSMap["AF"]}:>MInt  //bit 4
-    mi(1,0)      //bit 3 set to 0
-    {RSMap["PF"]}:>MInt  //bit 2
-    mi(1,1)      //bit 1 set to 1
-    {RSMap["CF"]}:>MInt  //bit 0
-  )
 
   rule immToInt(($ I:Int):Imm) => I
   rule immToInt(($ H:HexConstant):Imm) => hexToInt(H)

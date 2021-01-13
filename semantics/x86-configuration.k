@@ -3,6 +3,7 @@ require "x86-abstract-syntax.k"
 require "common/common-memory.k"
 require "x86-memory.k"
 require "x86-mint-wrapper.k"
+require "x86-eflags.k"
 
 module X86-CONFIGURATION
   imports X86-SYNTAX
@@ -11,6 +12,7 @@ module X86-CONFIGURATION
   imports X86-MEMORY-SYNTAX
   imports MINT-WRAPPER-SYNTAX
   imports X86-LOADER-SYNTAX
+  imports X86-EFLAGS-SYNTAX //TO DELETE
 
 
   configuration
@@ -18,12 +20,11 @@ module X86-CONFIGURATION
 	$PGM:Lines ~> 
   loadEntryPoint ~>
 	inforegisters ~>
-  //loadWord(mi(64, 4198400))
-  //loadWord(mi(64, 4198400)) ~> setRegisterValue(mi(16,0), %gdtr_limit)
-	fetch 
+	fetch
+
     </k>
-    <entrypoint> mi(64, 4198400) </entrypoint>
-    <exitpoint> mi(64, 4198420) </exitpoint>
+    <entrypoint> mi(64, 1052672) </entrypoint>
+    <exitpoint> mi(64, 1056831) </exitpoint>
     <functargets> .Map </functargets> 
     <rotargets> .Map </rotargets> 
     <datatargets> .Map </datatargets> 
@@ -49,7 +50,7 @@ module X86-CONFIGURATION
       <argv> .K </argv>
     </environment>
 
-    <processormode> b64 </processormode>
+    <processormode> b32 </processormode>
 
     //obtained by running cpuid on lenovo t480
     <cpuidinfo>
@@ -71,6 +72,40 @@ module X86-CONFIGURATION
         ("RDTSCP" |-> mi(1,1))
         ("64MODEAv" |-> mi(1,1))
       </extendedfunctioninfo>
+      <supportedfeatures>
+        ("RDRAND" |-> mi(1,0))
+        ("F16C" |-> mi(1,0)) //
+        ("AVX" |-> mi(1,0)) //
+        ("OSXSAVE" |-> mi(1,0)) //
+        ("XSAVE" |-> mi(1,0)) //
+        ("AES" |-> mi(1,0)) //
+        ("TSC_Deadline" |-> mi(1,0)) //
+        ("POPCNT" |-> mi(1,0)) //
+        ("MOVBE" |-> mi(1,0)) //
+        ("x2APIC" |-> mi(1,0)) //
+        ("SSE4_2" |-> mi(1,0)) // — SSE4.2
+        ("SSE4_1" |-> mi(1,0)) // — SSE4.1
+        ("DCA" |-> mi(1,0)) // — Direct Cache Access
+        ("PCID" |-> mi(1,0)) // — Process-context Identifiers
+        ("PDCM" |-> mi(1,0)) // — Perf/Debug Capability MSR
+        ("xTPR" |-> mi(1,0)) // Update Control
+        ("CMPXCHG16B" |-> mi(1,0)) //
+        ("FMA" |-> mi(1,0)) // — Fused Multiply Add
+        ("SDBG" |-> mi(1,0)) //
+        ("CNXT_ID" |-> mi(1,0)) // — L1 Context ID
+        ("SSSE3" |-> mi(1,0)) // — SSSE3 Extensions
+        ("TM2" |-> mi(1,0)) // — Thermal Monitor 2
+        ("EIST" |-> mi(1,0)) // — Enhanced Intel SpeedStep® Technology
+        ("SMX" |-> mi(1,0)) // — Safer Mode Extensions
+        ("VMX" |-> mi(1,0)) // — Virtual Machine Extensions
+        ("DS_CPL" |-> mi(1,0)) // — CPL Qualified Debug Store
+        ("MONITOR" |-> mi(1,0)) // — MONITOR/MWAIT
+        ("DTES64" |-> mi(1,0)) // — 64-bit DS Area
+        ("PCLMULQDQ" |-> mi(1,0)) // — Carryless Multiplication
+        ("SSE3" |-> mi(1,0)) // — SSE3 Extensions
+      </supportedfeatures>
+      <maxbasicleaf> mi(32, 7) </maxbasicleaf>
+      <maxextendedleaf> mi(32, 2147483655) </maxextendedleaf> //0x80000007
     </cpuidinfo>
     
 
@@ -104,8 +139,16 @@ module X86-CONFIGURATION
       ("ZF"     |-> mi(1, 1)) 
       ("SF"     |-> mi(1, 0)) 
       ("OF"     |-> mi(1, 0))
-      //SYSTEM flags
-      ("EFLAGS" |-> mi(32, 0))
+      ("ID"     |-> mi(1,0))
+      ("VIP"    |-> mi(1,0))
+      ("VIF"    |-> mi(1,0))
+      ("AC"     |-> mi(1,0))
+      ("VM"     |-> mi(1,0))
+      ("RF"     |-> mi(1,0))
+      ("NT"     |-> mi(1,0))
+      ("IOPL"    |-> mi(2,0))
+      ("IF"     |-> mi(1,0))
+      ("TF"     |-> mi(1,0))
       //CR0 bits 
       ("PG"     |-> mi(1, 0))   // Paging
       ("CD"     |-> mi(1, 0))   // Cache Disable
@@ -139,7 +182,7 @@ module X86-CONFIGURATION
       ("UMIP"     |-> mi(1, 0))  // User-Mode Instruction Prevention
       ("VMXE"     |-> mi(1, 0))  // VMX-Enable Bit
       ("SMXE"     |-> mi(1, 0))  // SMX-Enable Bit
-      ("FSGBASE"     |-> mi(1, 0))  // FSGBASE-Enable Bit
+      ("FSGSBASE"     |-> mi(1, 0))  // FSGBASE-Enable Bit
       ("PCIDE"     |-> mi(1, 0))  // PCID-Enable Bit
       ("OSXSAVE"     |-> mi(1, 0))  // XSAVE and Processor Extended States-Enable Bit
       ("SMEP"     |-> mi(1, 0))  // SMEP-Enable Bit

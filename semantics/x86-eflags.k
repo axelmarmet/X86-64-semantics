@@ -2,20 +2,11 @@ requires "x86-configuration.k"
 
 module X86-EFLAGS-SYNTAX
 
-  imports X86-CONFIGURATION
+  imports X86-SYNTAX
 
-  syntax MInt ::= getTF(Map) 
-  syntax MInt ::= getIF(Map) 
-  syntax MInt ::= getDF(Map) 
-  syntax MInt ::= getOF(Map) 
-  syntax MInt ::= getIOPL(Map) 
-  syntax MInt ::= getNT(Map) 
-  syntax MInt ::= getRF(Map) 
-  syntax MInt ::= getVM(Map) 
-  syntax MInt ::= getAC(Map) 
-  syntax MInt ::= getVIF(Map) 
-  syntax MInt ::= getVIP(Map) 
-  syntax MInt ::= getID(Map) 
+  syntax MInt ::= extractLoadValue(KItem) [function, strict]
+  syntax MInt ::= strictAndMInt(MInt, MInt) [function, strict]
+
 
 endmodule
 
@@ -31,65 +22,27 @@ module X86-EFLAGS
                 | "popUnchangedMask"
                 | "popZeroedMask"
 
-  syntax KItem ::= updateEFLAGS(MInt /*old value */,
-                                MInt /*new value */)
+  syntax MInt ::= popUnchangedMask(Bool) [function]
+
+
+  // syntax MInt ::= strictAndMInt(MInt, MInt) [function, strict]
+  rule strictAndMInt(M1:MInt, M2:MInt) => andMInt(M1, M2)
   
-  syntax MInt ::= extractLoadValue(KItem) [function]
   rule extractLoadValue(memLoadValue(MI:MInt)) => MI
 
   rule eflagsMask => mi(32, hexToInt(0x00FCFFFF)) [macro]
   rule cpuidMask => mi(32, 1 <<Int 21) [macro]
-  rule popUnchangedMask => mi(32, (1 <<Int 20) |Int (1 <<Int 19) |Int (1 <<Int 17)) [macro]
+
+  rule popUnchangedMask(B:Bool) => 
+    #if B 
+      #then mi(32, (1 <<Int 20) |Int (1 <<Int 19) |Int (1 <<Int 17)) 
+      #else mi(32, (1 <<Int 21) |Int (1 <<Int 20) |Int (1 <<Int 19) |Int (1 <<Int 17)) 
+    #fi
+
   rule popZeroedMask => negMInt(mi(32, (1 <<Int 16))) [macro]
   
-  rule getRegisterValue(R:RControl, RSMap) => {RSMap[convToRegKeys(R)]}:>MInt
 
-  rule 
-    <k>
-      updateEFLAGS(Old:MInt, New:MInt) => . ...
-    </k>
-    <cpuidavailable> true </cpuidavailable>
-    <regstate> 
-      RSMap:Map => updateMap(RSMap, 
-        "EFLAGS" |-> New
-        "CF"     |-> extractMInt(New, 1, 0)
-        "PF"     |-> extractMInt(New, 3, 2)
-        "AF"     |-> extractMInt(New, 5, 4)
-        "ZF"     |-> extractMInt(New, 7, 6)
-        "SF"     |-> extractMInt(New, 8, 7)
-        "OF"     |-> extractMInt(New, 12, 11)
-      )
-    </regstate>
-  rule 
-    <k>
-      updateEFLAGS(Old:MInt, New:MInt) => . ...
-    </k>
-    <cpuidavailable> false </cpuidavailable>
-    <regstate> 
-      RSMap:Map => updateMap(RSMap, 
-        "EFLAGS" |-> updateExceptMask(Old, New, cpuidMask)
-        "CF"     |-> extractMInt(New, 1, 0)
-        "PF"     |-> extractMInt(New, 3, 2)
-        "AF"     |-> extractMInt(New, 5, 4)
-        "ZF"     |-> extractMInt(New, 7, 6)
-        "SF"     |-> extractMInt(New, 8, 7)
-        "OF"     |-> extractMInt(New, 12, 11)
-      )
-    </regstate>
-    //if cpuid is not a valid instruction then bit ID cannot be toggled or cleared
-
-  rule getTF(RSMap) => extractMInt(getRegisterValue(%eflags, RSMap), 9, 8)   // Trap flag
-  rule getIF(RSMap) => extractMInt(getRegisterValue(%eflags, RSMap), 10, 9)   // Interrupt enable flag
-  rule getDF(RSMap) => extractMInt(getRegisterValue(%eflags, RSMap), 11, 10)   // Direction flag
-  rule getOF(RSMap) => extractMInt(getRegisterValue(%eflags, RSMap), 12, 11)   // Overflow flag
-  rule getIOPL(RSMap) => extractMInt(getRegisterValue(%eflags, RSMap), 14, 12) // I/O privilege level field
-  rule getNT(RSMap) => extractMInt(getRegisterValue(%eflags, RSMap), 15, 14)   // Nested task flag
-  rule getRF(RSMap) => extractMInt(getRegisterValue(%eflags, RSMap), 17, 16)   // Resume flag
-  rule getVM(RSMap) => extractMInt(getRegisterValue(%eflags, RSMap), 18, 17)   // Virtual-8086 mode flag
-  rule getAC(RSMap) => extractMInt(getRegisterValue(%eflags, RSMap), 19, 18)   // Alignment check flag
-  rule getVIF(RSMap) => extractMInt(getRegisterValue(%eflags, RSMap), 20, 19)  // Virtual interrupt flag
-  rule getVIP(RSMap) => extractMInt(getRegisterValue(%eflags, RSMap), 21, 20)  // Virtual interrupt pending flag
-  rule getID(RSMap) => extractMInt(getRegisterValue(%eflags, RSMap), 22, 21)   // Identification flag
+  //if cpuid is not a valid instruction then bit ID cannot be toggled or cleared
 
   rule execinstr ((pushfd:Opcode => pushf) .Operands)
   rule execinstr ((pushfq:Opcode => pushf) .Operands)
@@ -103,9 +56,9 @@ module X86-EFLAGS
     execinstr (pushf:Opcode .Operands) =>
       storeToMemory(
           andMInt(
-              getEFLAGSValue(RSMap),
+              getControlRegisterValue(%eflags, RSMap),
               eflagsMask), 
-          subMInt(getRegisterValue(%rsp, RSMap), mi(32, 4)), 
+          subMInt(getRegisterValue(%rsp, RSMap), mi(64, 4)), 
           32)  ~>  
       decRSPInBytes(4)
   ...</k>
@@ -114,23 +67,63 @@ module X86-EFLAGS
   requires isProtectedMode(RSMap) andBool (notBool(isVirtual8086Mode(RSMap)))
 
   rule <k>
-    execinstr (popf:Opcode .Operands) => 
-      incRSPInBytes(4) ~>
-      updateEFLAGS(
-          {RSMap["EFLAGS"]}:>MInt,
-          updateExceptMask(
-            {RSMap["EFLAGS"]}:>MInt,
-            andMInt(
-              extractLoadValue(
-                loadFromMemory(getRegisterValue(%rsp, RSMap), 32)), 
-              popZeroedMask),
-            popUnchangedMask)) 
-           ... 
+      execinstr (popf:Opcode .Operands) => 
+      loadFromMemory(getRegisterValue(%rsp, RSMap), 32) ~> execinstr (popf .Operands) ...
     </k>
     <regstate> RSMap </regstate>
     <processormode> b32 </processormode>
     requires isProtectedMode(RSMap) andBool 
              (notBool(isVirtual8086Mode(RSMap))) andBool
-             getCPL(RSMap) ==Int 0
+             (getCPL(RSMap) ==Int 0)
+
+  rule <k>
+      memLoadValue(NewEflags:MInt):MemLoadValue ~> execinstr(popf:Opcode .Operands) =>
+      getControlRegisterValue(%eflags, RSMap) ~> execinstr(popf NewEflags, .Operands) ...
+    </k>
+    <regstate> RSMap </regstate>
+    <processormode> b32 </processormode>
+    requires isProtectedMode(RSMap) andBool 
+             (notBool(isVirtual8086Mode(RSMap))) andBool
+             (getCPL(RSMap) ==Int 0)
+
+  rule <k> OldEflags:MInt ~> execinstr(popf:Opcode NewEflags:MInt, .Operands) =>
+    incRSPInBytes(4) ~>
+    setControlRegisterValue(
+        updateExceptMask(
+          OldEflags,
+          andMInt(
+            NewEflags,
+            popZeroedMask
+          ),
+          popUnchangedMask(Available)),
+      %eflags) ...
+    </k>
+    <cpuidavailable> Available </cpuidavailable>
+    <regstate> RSMap </regstate>
+    <processormode> b32 </processormode>
+    requires isProtectedMode(RSMap) andBool 
+             (notBool(isVirtual8086Mode(RSMap))) andBool
+             (getCPL(RSMap) ==Int 0)
+
+  // rule <k>
+  //   execinstr (popf:Opcode .Operands) => 
+  //     incRSPInBytes(4) ~>
+  //     setControlRegisterValue(
+  //       maskIDIfNecessary(
+  //         getControlRegisterValue(%eflags, RSMap),
+  //         updateExceptMask(
+  //           getControlRegisterValue(%eflags, RSMap),
+  //           andMInt(
+  //             extractLoadValue(
+  //               loadFromMemory(getRegisterValue(%rsp, RSMap), 32)), 
+  //             popZeroedMask),
+  //           popUnchangedMask)),
+  //       %eflags) ... 
+  //   </k>
+  //   <regstate> RSMap </regstate>
+  //   <processormode> b32 </processormode>
+  //   requires isProtectedMode(RSMap) andBool 
+  //            (notBool(isVirtual8086Mode(RSMap))) andBool
+  //            (getCPL(RSMap) ==Int 0)
 
 endmodule

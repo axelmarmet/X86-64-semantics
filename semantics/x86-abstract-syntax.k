@@ -86,6 +86,8 @@ module X86-ABSTRACT-SYNTAX
       starting from lsb 8.
   */
   syntax KItem ::= setRegisterValue(KItem, Register) [strict(1)]
+  syntax KItem ::= setControlRegisterValue(KItem, ControlRegister) [strict(1)]
+
 
   syntax KResult ::= MInt
                     /*@
@@ -116,8 +118,8 @@ module X86-ABSTRACT-SYNTAX
       Ex. getRegisterValue(%rax)-> lower 64 bits of %rax
   */  
   syntax MInt  ::= getRegisterValue(Register, Map) [function]
+  syntax MInt ::= getControlRegisterValue(ControlRegister, Map) [function]
 
-  syntax MInt  ::= getEFLAGSValue(Map) [function]
   
   /*@
     Getting the Parent register's values.

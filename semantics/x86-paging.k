@@ -7,16 +7,17 @@ module X86-PAGING-SYNTAX
   syntax PML4Entry ::= pml4Entry(MInt) //PML4 = Page-Map Level 4
   syntax PDPTEntry ::= pdptEntry(MInt) //PDPT = Page-Directory-Pointer Table
 
-  syntax PhysicalAddress ::= physAddr(MInt)
-  syntax VirtualAddress ::= virtAddr(MInt)
-  syntax MInt ::= PhysicalAddress
-  syntax MInt ::= VirtualAddress
+  syntax PhysAddress ::= physAddr(MInt)
+  syntax VirtAddress ::= virtAddr(MInt)
+
+  syntax MemAddress ::= PhysAddress
+  syntax MemAddress ::= VirtAddress
+  syntax MemAddress ::= MInt
+  syntax MemAddress ::= translateAddress(MemAddress)
 
   syntax PML4Entry ::= loadPML4Entry(MInt, MInt) [strict] 
   syntax PDPTEntry ::= loadPDPTEntry(PML4Entry, MInt) [strict]
   syntax KItem ::= getPhysicalAddress(MInt)
-
-  syntax MInt ::= translateAddress(MInt) [function]
 
 endmodule
 
@@ -24,6 +25,10 @@ module X86-PAGING
   imports X86-MEMORY
   imports X86-ABSTRACT-SEMANTICS
   imports X86-PAGING-SYNTAX
+
+  //helper to extract MemLoadValue
+  syntax MInt ::= extractMemLoadValue(KItem) [function]
+  rule extractMemLoadValue(memLoadValue(M:MInt):MemLoadValue) => M
 
   syntax Bool ::= isIA32EFERLMESet(Map) [function]
   rule isIA32EFERLMESet(RSMap:Map) => eqMInt(mi(1,1), extractMask({RSMap["IA32_EFER"]}:>MInt, 1, 8))
@@ -38,42 +43,48 @@ module X86-PAGING
   rule pagingEnabled(RSMap:Map) => isIA32EFERLMESet(RSMap) andBool isPAESet(RSMap) andBool isPGSet(RSMap)
     
 
-  rule <k> virtAddr(Addr:MInt) =>
+  rule <k> translateAddress(virtAddr(Addr:MInt)) =>
      loadPDPTEntry(loadPML4Entry({RSMap["PageDirectoryBase"]}:>MInt, Addr), Addr) ~> getPhysicalAddress(Addr) ...
    </k>
    <regstate> RSMap </regstate>
    requires pagingEnabled(RSMap)
 
-  rule <k> virtAddr(Addr:MInt) =>
-      physAddr(Addr) ...
+  rule <k> translateAddress(virtAddr(Addr:MInt)) =>
+      translateAddress(physAddr(Addr)) ...
     </k>
     <regstate> RSMap </regstate>
     requires notBool pagingEnabled(RSMap)
 
+  rule translateAddress(MI:MInt) => translateAddress(virtAddr(MI))
+
   rule <k>
       loadPML4Entry(Base:MInt, VirtAddr:MInt) => 
-        pml4Entry(loadQuadWord
-          (concatenateMInts(
-            Base 
-            extractMask(VirtAddr, 9, 39) 
-            mi(3, 0) 
-            .MInts))) ...
+        pml4Entry(
+          extractMemLoadValue(
+            loadQuadWord
+              (concatenateMInts(
+                Base 
+                extractMask(VirtAddr, 9, 39) 
+                mi(3, 0) 
+                .MInts)))) ...
     </k>
 
   rule <k>
       loadPDPTEntry(Entry:PML4Entry, VirtAddr:MInt) => 
-        pdptEntry(loadQuadWord(
-          concatenateMInts(
-            extractBaseFromPML4Entry(Entry) 
-            extractMask(VirtAddr, 9, 30)  
-            mi(3, 0) 
-            .MInts))) ...
+        pdptEntry(
+          extractMemLoadValue(
+            loadQuadWord(
+              concatenateMInts(
+                extractBaseFromPML4Entry(Entry) 
+                extractMask(VirtAddr, 9, 30)  
+                mi(3, 0) 
+                .MInts)))) ...
     </k>
 
   rule <k> Entry:PDPTEntry ~> getPhysicalAddress(VirtAddr:MInt) => 
-      physAddr(concatenateMInts(
+      translateAddress(physAddr(concatenateMInts(
         extractPhysicalAddressFromPDPTEntry(Entry)
-        extractMask(VirtAddr, 30, 0)))
+        extractMask(VirtAddr, 30, 0))))
     </k>
     requires eqMInt(pageSizeBit(Entry), mi(1,1))
 

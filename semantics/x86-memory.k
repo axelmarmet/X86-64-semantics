@@ -9,6 +9,7 @@ endmodule
 module X86-MEMORY-SYNTAX
   imports X86-MEMORY-SORT
   imports X86-ABSTRACT-SORTS
+  imports X86-PAGING-SYNTAX
   imports MINT-WRAPPER-SORT
   imports MINT
   imports INT
@@ -28,7 +29,7 @@ module X86-MEMORY-SYNTAX
     Load memory at Address represented by MInt for Int bits
   */
   syntax KItem ::=  loadFromMemory(
-                      /* Address */ MInt,
+                      /* Address */ MemAddress,
                       /* Load size in bits */ Int)
 
   /*@
@@ -52,10 +53,10 @@ module X86-MEMORY-SYNTAX
   */
   syntax KItem ::=  storeToMemory(
                       /* Data */ StoreVal,
-                      /* Address */ MInt,
+                      /* Address */ MemAddress,
                       /* Store size in bits*/ Int)
 
-  syntax KItem ::=  storeToMemoryAcross(
+  syntax KItem ::=  storeToMemoryWithoutTranslation(
                       /* Data */ StoreVal,
                       /* Address */ MInt,
                       /* Store size in bits*/ Int)
@@ -156,21 +157,10 @@ module X86-MEMORY
   /*@
     Load memory Nbits:Int bits from Address represented AddrMI:MInt
   */
-  rule <k>
-    //loadFromMemory(AddrMI:MInt, Nbits:Int) =>
-    loadFromMemory(ptr(L:MemLoc, AddrMI:MInt), Nbits:Int) =>
-      fromMemValue(mRead(L, uvalueMInt(AddrMI) *Int 8, Nbits /Int 8, 8), Nbits)
-  ... </k>
-    //<stackbase> stackBaseInfo( L:MemLoc, _:K) </stackbase>
-      requires Nbits %Int 8 ==Int 0
-
-  /*@
-    Load memory Nbits:Int bits from Address represented AddrMI:MInt
-  */
-  //context loadFromMemory(HOLE:MInt, N:Int) [result(PhysicalAddress)]
+  context loadFromMemory(HOLE:MemAddress => translateAddress(HOLE), N:Int) [result(PhysAddress)]
   rule 
     <k>
-    loadFromMemory(AddrMI:MInt, Nbits:Int) => 
+    loadFromMemory(physAddr(AddrMI:MInt):PhysAddress, Nbits:Int) => 
       loadFromMemoryWithoutTranslation(AddrMI, Nbits) ...
     </k>
     //<stackbase> stackBaseInfo( L:MemLoc, _:K) </stackbase>
@@ -214,16 +204,16 @@ module X86-MEMORY
   /*@
     Store 'Val' in 'Nbits' of memory starting at address 'AddrMI'
   */
+  context storeToMemory(Val:StoreVal, HOLE:MemAddress => translateAddress(HOLE), N:Int) [result(PhysAddress)]
   rule <k>
-    //storeToMemory(Val:StoreVal, AddrMI:MInt, Nbits:Int) => mWrite(L, uvalueMInt(AddrMI) *Int 8, toMemValue(Val, Nbits))
-    storeToMemory(Val:StoreVal, ptr(L:MemLoc, AddrMI:MInt), Nbits:Int) => mWrite(L, uvalueMInt(AddrMI) *Int 8, toMemValue(Val, Nbits))
-  ... </k>
+      storeToMemory(Val:StoreVal, physAddr(AddrMI:MInt):PhysAddress, Nbits:Int) => 
+      storeToMemoryWithoutTranslation(Val, AddrMI, Nbits) ... 
+    </k>
     //<stackbase> stackBaseInfo( L:MemLoc, _:K) </stackbase>
       requires Nbits %Int 8 ==Int 0
 
-
   rule <k>
-    storeToMemoryAcross(Val:StoreVal, Addr:MInt, NBits:Int) => 
+    storeToMemoryWithoutTranslation(Val:StoreVal, Addr:MInt, NBits:Int) => 
     mWriteAcross(
       loc(
         uvalueMInt(Addr),

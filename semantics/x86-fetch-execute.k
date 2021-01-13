@@ -4,6 +4,7 @@ requires "x86-configuration.k"
 module X86-FETCH-EXECUTE
   imports X86-CONFIGURATION
   imports X86-SYNTAX
+  imports X86-PAGING-SYNTAX
   syntax KItem ::= "decode" [token]
 
   /*@
@@ -33,7 +34,7 @@ module X86-FETCH-EXECUTE
 
   rule
     <k> 
-      Hint:Int ~> fetch => loadFromMemoryWithoutTranslation(Addr, Hint) ~> decode ~> inforegisters ~> fetch ...
+      Hint:Int ~> fetch => loadFromMemory(Addr, Hint) ~> decode ~> inforegisters ~> fetch ...
     </k>
     <exitpoint> ExitPoint </exitpoint>
     <regstate>
