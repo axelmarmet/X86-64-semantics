@@ -66,6 +66,10 @@ module X86-ABSTRACT-SYNTAX
     Subregs to Regs
   */
   syntax Register ::= convSubRegsToRegs(Register) [function]
+  /*
+    R64 to R32
+  */
+  syntax R32 ::= convertR64ToR32(R64) [function]
   //syntax R64 ::= convSubRegsToRegs(Register) [function]
   //syntax Ymm ::= convSubRegsToRegs(Register) [function]
 

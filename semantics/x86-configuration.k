@@ -3,7 +3,6 @@ require "x86-abstract-syntax.k"
 require "common/common-memory.k"
 require "x86-memory.k"
 require "x86-mint-wrapper.k"
-require "x86-eflags.k"
 
 module X86-CONFIGURATION
   imports X86-SYNTAX
@@ -12,7 +11,6 @@ module X86-CONFIGURATION
   imports X86-MEMORY-SYNTAX
   imports MINT-WRAPPER-SYNTAX
   imports X86-LOADER-SYNTAX
-  imports X86-EFLAGS-SYNTAX //TO DELETE
 
 
   configuration
@@ -63,49 +61,84 @@ module X86-CONFIGURATION
         ("extendedfamily" |-> mi(8, 0)) 
       </processorsignature>
       <extendedfunctioninfo>
-        ("LAHF64" |-> mi(1,1))
-        ("LZCNT" |-> mi(1,1))
-        ("PREFETCHW" |-> mi(1,1))
-        ("SYSCALL" |-> mi(1,1))
-        ("EDB" |-> mi(1,1))
-        ("1GBAv" |-> mi(1,1))
-        ("RDTSCP" |-> mi(1,1))
-        ("64MODEAv" |-> mi(1,1))
+        ("LAHF64"    |-> mi(1,0))
+        ("LZCNT"     |-> mi(1,0))
+        ("PREFETCHW" |-> mi(1,0))
+        ("SYSCALL"   |-> mi(1,0))
+        ("EDB"       |-> mi(1,0))
+        ("1GBAv"     |-> mi(1,1))
+        ("RDTSCP"    |-> mi(1,0))
+        ("64MODEAv"  |-> mi(1,1))
       </extendedfunctioninfo>
       <supportedfeatures>
-        ("RDRAND" |-> mi(1,0))
-        ("F16C" |-> mi(1,0)) //
-        ("AVX" |-> mi(1,0)) //
-        ("OSXSAVE" |-> mi(1,0)) //
-        ("XSAVE" |-> mi(1,0)) //
-        ("AES" |-> mi(1,0)) //
-        ("TSC_Deadline" |-> mi(1,0)) //
-        ("POPCNT" |-> mi(1,0)) //
-        ("MOVBE" |-> mi(1,0)) //
-        ("x2APIC" |-> mi(1,0)) //
-        ("SSE4_2" |-> mi(1,0)) // — SSE4.2
-        ("SSE4_1" |-> mi(1,0)) // — SSE4.1
-        ("DCA" |-> mi(1,0)) // — Direct Cache Access
-        ("PCID" |-> mi(1,0)) // — Process-context Identifiers
-        ("PDCM" |-> mi(1,0)) // — Perf/Debug Capability MSR
-        ("xTPR" |-> mi(1,0)) // Update Control
-        ("CMPXCHG16B" |-> mi(1,0)) //
-        ("FMA" |-> mi(1,0)) // — Fused Multiply Add
-        ("SDBG" |-> mi(1,0)) //
-        ("CNXT_ID" |-> mi(1,0)) // — L1 Context ID
-        ("SSSE3" |-> mi(1,0)) // — SSSE3 Extensions
-        ("TM2" |-> mi(1,0)) // — Thermal Monitor 2
-        ("EIST" |-> mi(1,0)) // — Enhanced Intel SpeedStep® Technology
-        ("SMX" |-> mi(1,0)) // — Safer Mode Extensions
-        ("VMX" |-> mi(1,0)) // — Virtual Machine Extensions
-        ("DS_CPL" |-> mi(1,0)) // — CPL Qualified Debug Store
-        ("MONITOR" |-> mi(1,0)) // — MONITOR/MWAIT
-        ("DTES64" |-> mi(1,0)) // — 64-bit DS Area
-        ("PCLMULQDQ" |-> mi(1,0)) // — Carryless Multiplication
-        ("SSE3" |-> mi(1,0)) // — SSE3 Extensions
+        ("RDRAND" |-> mi(1,1))
+        ("F16C" |-> mi(1,1))
+        ("AVX" |-> mi(1,1))
+        ("OSXSAVE" |-> mi(1,0))
+        ("XSAVE" |-> mi(1,1))
+        ("AES" |-> mi(1,1))
+        ("TSC_Deadline" |-> mi(1,0))
+        ("POPCNT" |-> mi(1,1))
+        ("MOVBE" |-> mi(1,0))
+        ("x2APIC" |-> mi(1,0))
+        ("SSE4_2" |-> mi(1,1)) 
+        ("SSE4_1" |-> mi(1,1)) 
+        ("DCA" |-> mi(1,0)) 
+        ("PCID" |-> mi(1,0)) 
+        ("PDCM" |-> mi(1,0)) 
+        ("xTPR" |-> mi(1,0)) 
+        ("CMPXCHG16B" |-> mi(1,1))
+        ("FMA" |-> mi(1,0)) 
+        ("SDBG" |-> mi(1,0)) 
+        ("CNXT_ID" |-> mi(1,0)) 
+        ("SSSE3" |-> mi(1,1)) 
+        ("TM2" |-> mi(1,0)) 
+        ("EIST" |-> mi(1,0)) 
+        ("SMX" |-> mi(1,0)) 
+        ("VMX" |-> mi(1,0)) 
+        ("DS_CPL" |-> mi(1,0)) 
+        ("MONITOR" |-> mi(1,0)) 
+        ("DTES64" |-> mi(1,0)) 
+        ("PCLMULQDQ" |-> mi(1,1)) 
+        ("SSE3" |-> mi(1,1)) 
+        
+        ("PBE" |-> mi(1,0)) 
+        ("TM" |-> mi(1,0)) 
+        ("HTT" |-> mi(1,0)) 
+        ("SS" |-> mi(1,1)) 
+        ("SSE2" |-> mi(1,1)) 
+        ("SSE" |-> mi(1,1)) 
+        ("FXSR" |-> mi(1,1)) 
+        ("MMX" |-> mi(1,1)) 
+        ("ACPI" |-> mi(1,0)) 
+        ("DS" |-> mi(1,0)) 
+        ("CLFSH" |-> mi(1,0)) 
+        ("PSN" |-> mi(1,0)) 
+        ("PSE_36" |-> mi(1,0)) 
+        ("PAT" |-> mi(1,0)) 
+        ("CMOV" |-> mi(1,0)) 
+        ("MCA" |-> mi(1,0)) 
+        ("PGE" |-> mi(1,0)) 
+        ("MTRR" |-> mi(1,0)) 
+        ("SEP" |-> mi(1,0)) 
+        ("APIC" |-> mi(1,0)) 
+        ("CX8" |-> mi(1,1)) 
+        ("MCE" |-> mi(1,0)) 
+        ("PAE" |-> mi(1,1)) 
+        ("MSR" |-> mi(1,1)) 
+        ("TSC" |-> mi(1,1)) 
+        ("PSE" |-> mi(1,0)) 
+        ("DE" |-> mi(1,0)) 
+        ("VME" |-> mi(1,0)) 
+        ("FPU" |-> mi(1,1)) 
       </supportedfeatures>
+      <supportedextendedfeatures>
+        ("FSGSBASE" |-> mi(1,1)) //Supports RDFSBASE/RDGSBASE/WRFSBASE/WRGSBASE if 1.
+        ("INV_TSC" |-> mi(1,1)) //Invariant TSC available if 1.
+      </supportedextendedfeatures>
+
       <maxbasicleaf> mi(32, 7) </maxbasicleaf>
-      <maxextendedleaf> mi(32, 2147483655) </maxextendedleaf> //0x80000007
+      <maxextendedleaf> mi(32, 2147483655) </maxextendedleaf> 
     </cpuidinfo>
     
 

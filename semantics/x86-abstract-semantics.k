@@ -382,6 +382,15 @@ module X86-ABSTRACT-SEMANTICS
   rule convSubRegsToRegs(%gdtr_base) => %gdtr_base
   rule convSubRegsToRegs(%gdtr_limit) => %gdtr_limit
 
+  rule convertR64ToR32(%rax) => %eax
+  rule convertR64ToR32(%rbx) => %ebx
+  rule convertR64ToR32(%rcx) => %ecx
+  rule convertR64ToR32(%rdx) => %edx
+  rule convertR64ToR32(%rsi) => %esi
+  rule convertR64ToR32(%rdi) => %edi
+  rule convertR64ToR32(%rsp) => %esp
+  rule convertR64ToR32(%rbp) => %ebp
+
 /*
   rule convSubRegsToRegs(%mm0 )  => %mm0
   rule convSubRegsToRegs(%mm1 )  => %mm1
