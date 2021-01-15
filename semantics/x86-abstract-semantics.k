@@ -4,6 +4,21 @@ module X86-ABSTRACT-SEMANTICS
   imports X86-CONFIGURATION
   imports X86-MEMORY
   
+  syntax Bool ::= isIA32EFERLMESet(Map) [function]
+  rule isIA32EFERLMESet(RSMap:Map) => eqMInt(mi(1,1), extractMask({RSMap["IA32_EFER"]}:>MInt, 1, 8))
+
+  syntax Bool ::= isPGSet(Map) [function]
+  rule isPGSet(RSMap:Map) => eqMInt(mi(1,1), {RSMap["PG"]}:>MInt)           
+
+  syntax Bool ::= isPAESet(Map) [function]
+  rule isPAESet(RSMap:Map) => eqMInt(mi(1,1), {RSMap["PAE"]}:>MInt)
+
+  rule pagingEnabled(RSMap:Map) => isIA32EFERLMESet(RSMap) andBool isPAESet(RSMap) andBool isPGSet(RSMap)
+
+  rule inIA32E(RSMap:Map) => isIA32EFERLMESet(RSMap) andBool isPAESet(RSMap) andBool isPGSet(RSMap)
+  rule in64Bits(RSMap:Map) => inIA32E(RSMap)
+  rule in32Bits(RSMap:Map) => notBool inIA32E(RSMap)
+
   /* Processor modes */
   rule  isRealAddressMode(RSMap:Map) => eqMInt(mi(1,0), {RSMap["PE"]}:>MInt) 
   rule  isProtectedMode(RSMap:Map) => eqMInt(mi(1,1), {RSMap["PE"]}:>MInt) 
