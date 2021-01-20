@@ -11,6 +11,7 @@ module LGDTL
     setRegisterValue(loadWord(Addr), %gdtr_limit) ~>
     setRegisterValue(loadQuadWord(addMInt(Addr, mi(64, 2))), %gdtr_base) ...
   </k>
-  <processormode> b64 </processormode>
+  <regstate> RSMap </regstate>
+  requires in64Bits(RSMap)
 
 endmodule

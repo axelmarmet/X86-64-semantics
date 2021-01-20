@@ -19,6 +19,6 @@ module PUSHL-R32
       decRSPInBytes(4)
   ...</k>
   <regstate> RSMap </regstate>
-  <processormode> b32 </processormode>
+  requires in32Bits(RSMap)
 
 endmodule

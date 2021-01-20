@@ -17,6 +17,6 @@ module POPL-R32
           R1) 
   ...</k>
   <regstate> RSMap </regstate>
-  <processormode> b32 </processormode>
+  requires in32Bits(RSMap)
 
 endmodule

@@ -15,9 +15,14 @@ module X86-ABSTRACT-SYNTAX
 
   syntax ProcessorMode ::= "b32" | "b64" 
   /* Processor modes */
+  syntax Bool ::= is64BitMode(Map) [function]
   syntax Bool ::= isRealAddressMode(Map) [function]
   syntax Bool ::= isProtectedMode(Map) [function]
   syntax Bool ::= isVirtual8086Mode(Map) [function]
+  syntax Bool ::= inIA32E(Map) [function]
+  syntax Bool ::= pagingEnabled(Map) [function]
+  syntax Bool ::= in64Bits(Map) [function]
+  syntax Bool ::= in32Bits(Map) [function]
   syntax Int ::= getCPL(Map) [function]
 
   syntax PointerVal ::= ptr(MemLoc, /* offset in bits */ MInt)
@@ -91,7 +96,7 @@ module X86-ABSTRACT-SYNTAX
   */
   syntax KItem ::= setRegisterValue(KItem, Register) [strict(1)]
   syntax KItem ::= setControlRegisterValue(KItem, ControlRegister) [strict(1)]
-
+  syntax KItem ::= setXCR0(MInt) [strict(1)]
 
   syntax KResult ::= MInt
                     /*@
@@ -123,7 +128,7 @@ module X86-ABSTRACT-SYNTAX
   */  
   syntax MInt  ::= getRegisterValue(Register, Map) [function]
   syntax MInt ::= getControlRegisterValue(ControlRegister, Map) [function]
-
+  syntax MInt ::= getXCR0(Map) [function]
   
   /*@
     Getting the Parent register's values.

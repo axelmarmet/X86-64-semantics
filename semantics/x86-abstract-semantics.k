@@ -650,6 +650,34 @@ module X86-ABSTRACT-SEMANTICS
   
   rule getRegisterValue(R:GDTReg, RSMap) => {RSMap[convToRegKeys(R)]}:>MInt
 
+  rule getXCR0(RSMap:Map) => concatenateMInts(
+    mi(54,0)
+    {RSMap["PKRU_state"]}:>MInt
+    mi(1,0)
+    {RSMap["Hi16_ZMM_state"]}:>MInt
+    {RSMap["ZMM_Hi256_state"]}:>MInt
+    {RSMap["Opmask_state"]}:>MInt
+    {RSMap["BNDCSR_state"]}:>MInt
+    {RSMap["BNDREG_state"]}:>MInt
+    {RSMap["AVX_state"]}:>MInt
+    {RSMap["SSE_state"]}:>MInt
+    {RSMap["x87_FPU_MMX_state"]}:>MInt
+  )
+
+  rule <k> setXCR0(MI64:MInt) => . ... </k>
+  <regstate>
+    RSMap:Map => updateMap(RSMap,
+    "PKRU_state" |-> extractMask(MI64, 1, 9)
+    "Hi16_ZMM_state" |-> extractMask(MI64, 1, 7)
+    "ZMM_Hi256_state" |-> extractMask(MI64, 1, 6)
+    "Opmask_state" |-> extractMask(MI64, 1, 5)
+    "BNDCSR_state" |-> extractMask(MI64, 1, 4)
+    "BNDREG_state" |-> extractMask(MI64, 1, 3)
+    "AVX_state" |-> extractMask(MI64, 1, 2)
+    "SSE_state" |-> extractMask(MI64, 1, 1)
+    "x87_FPU_MMX_state" |-> extractMask(MI64, 1, 0)
+  )
+  </regstate>
 /*
   rule getRegisterValue(M:Mm,  RSMap)  =>  {RSMap[convToRegKeys(M)]}:>MInt
 */

@@ -19,10 +19,10 @@ module X86-CONFIGURATION
   loadEntryPoint ~>
 	inforegisters ~>
 	fetch
-
+  //setControlRegisterValue ( mi(64,2097222) , %eflags )
     </k>
     <entrypoint> mi(64, 1052672) </entrypoint>
-    <exitpoint> mi(64, 1056831) </exitpoint>
+    <exitpoint> mi(64, 1056836) </exitpoint>
     <functargets> .Map </functargets> 
     <rotargets> .Map </rotargets> 
     <datatargets> .Map </datatargets> 
@@ -47,8 +47,6 @@ module X86-CONFIGURATION
       <argc> .K </argc>
       <argv> .K </argv>
     </environment>
-
-    <processormode> b32 </processormode>
 
     //obtained by running cpuid on lenovo t480
     <cpuidinfo>
@@ -223,6 +221,16 @@ module X86-CONFIGURATION
       ("PKE"     |-> mi(1, 0))  // Protection-Key-Enable Bit
       //CR8
       ("TPL"     |-> mi(4, 0))  // Task Priority Level
+      //XCR0
+      ("PKRU_state" |-> mi(1,0))
+      ("Hi16_ZMM_state" |-> mi(1,0))
+      ("ZMM_Hi256_state" |-> mi(1,0))
+      ("Opmask_state" |-> mi(1,0))
+      ("BNDCSR_state" |-> mi(1,0))
+      ("BNDREG_state" |-> mi(1,0))
+      ("AVX_state" |-> mi(1,0))
+      ("SSE_state" |-> mi(1,0))
+      ("x87_FPU_MMX_state" |-> mi(1,0))
       //MSR
       ("IA32_EFER" |-> mi(64, 0))
       //SEGMENTS

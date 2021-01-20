@@ -56,33 +56,32 @@ module X86-EFLAGS
     execinstr (pushf:Opcode .Operands) =>
       storeToMemory(
           andMInt(
-              getControlRegisterValue(%eflags, RSMap),
+              extractMask(getControlRegisterValue(%eflags, RSMap), 32, 0),
               eflagsMask), 
           subMInt(getRegisterValue(%rsp, RSMap), mi(64, 4)), 
           32)  ~>  
       decRSPInBytes(4)
   ...</k>
   <regstate> RSMap </regstate>
-  <processormode> b32 </processormode>
-  requires isProtectedMode(RSMap) andBool (notBool(isVirtual8086Mode(RSMap)))
+  requires in32Bits(RSMap) andBool isProtectedMode(RSMap) andBool (notBool(isVirtual8086Mode(RSMap)))
 
   rule <k>
       execinstr (popf:Opcode .Operands) => 
       loadFromMemory(getRegisterValue(%rsp, RSMap), 32) ~> execinstr (popf .Operands) ...
     </k>
     <regstate> RSMap </regstate>
-    <processormode> b32 </processormode>
-    requires isProtectedMode(RSMap) andBool 
+    requires in32Bits(RSMap) andBool
+             isProtectedMode(RSMap) andBool 
              (notBool(isVirtual8086Mode(RSMap))) andBool
              (getCPL(RSMap) ==Int 0)
 
   rule <k>
       memLoadValue(NewEflags:MInt):MemLoadValue ~> execinstr(popf:Opcode .Operands) =>
-      getControlRegisterValue(%eflags, RSMap) ~> execinstr(popf NewEflags, .Operands) ...
+      extractMask(getControlRegisterValue(%eflags, RSMap), 32, 0) ~> execinstr(popf NewEflags, .Operands) ...
     </k>
     <regstate> RSMap </regstate>
-    <processormode> b32 </processormode>
-    requires isProtectedMode(RSMap) andBool 
+    requires in32Bits(RSMap) andBool
+             isProtectedMode(RSMap) andBool 
              (notBool(isVirtual8086Mode(RSMap))) andBool
              (getCPL(RSMap) ==Int 0)
 
@@ -100,30 +99,11 @@ module X86-EFLAGS
     </k>
     <cpuidavailable> Available </cpuidavailable>
     <regstate> RSMap </regstate>
-    <processormode> b32 </processormode>
-    requires isProtectedMode(RSMap) andBool 
+    requires in32Bits(RSMap) andBool
+             isProtectedMode(RSMap) andBool 
              (notBool(isVirtual8086Mode(RSMap))) andBool
              (getCPL(RSMap) ==Int 0)
 
-  // rule <k>
-  //   execinstr (popf:Opcode .Operands) => 
-  //     incRSPInBytes(4) ~>
-  //     setControlRegisterValue(
-  //       maskIDIfNecessary(
-  //         getControlRegisterValue(%eflags, RSMap),
-  //         updateExceptMask(
-  //           getControlRegisterValue(%eflags, RSMap),
-  //           andMInt(
-  //             extractLoadValue(
-  //               loadFromMemory(getRegisterValue(%rsp, RSMap), 32)), 
-  //             popZeroedMask),
-  //           popUnchangedMask)),
-  //       %eflags) ... 
-  //   </k>
-  //   <regstate> RSMap </regstate>
-  //   <processormode> b32 </processormode>
-  //   requires isProtectedMode(RSMap) andBool 
-  //            (notBool(isVirtual8086Mode(RSMap))) andBool
-  //            (getCPL(RSMap) ==Int 0)
+ 
 
 endmodule
