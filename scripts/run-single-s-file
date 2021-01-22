@@ -1,5 +1,5 @@
 #!/bin/bash
-SCRIPTS="/home/axel/Documents/FV_boot/X86-64-semantics/scripts"
+SCRIPTS="../scripts"
 $SCRIPTS/collect_instructions_semantics_dis.pl --file $1 &&
 $SCRIPTS/kompile.pl --backend java &&
 krun $2 $1
